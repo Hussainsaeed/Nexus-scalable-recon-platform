@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(1200px 600px at 20% 0%, rgba(94,255,169,0.12), transparent 55%),
+              radial-gradient(900px 500px at 90% 10%, rgba(0,245,212,0.09), transparent 50%),
+              linear-gradient(180deg, #04060a 0%, #050913 100%);
+}
+
+/* Subtle animated scanline */
+.nexus-scanlines {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(94,255,169,0.06),
+    rgba(94,255,169,0.02) 50%,
+    rgba(94,255,169,0.06)
+  );
+  background-size: 100% 4px;
+  animation: scan 6s linear infinite;
+}
+
+@keyframes scan {
+  0% { background-position: 0 -100px; }
+  100% { background-position: 0 1000px; }
+}
+

@@ -6,6 +6,8 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 
 const authRoutes = require('./routes/authRoutes');
+const scanRoutes = require('./routes/scanRoutes');
+
 
 const app = express();
 
@@ -24,7 +26,10 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'nexus-os-backend' });
 });
 
+
 app.use('/api/auth', authRoutes);
+app.use('/api', scanRoutes);
+
 
 // Centralized error handler
 // eslint-disable-next-line no-unused-vars
