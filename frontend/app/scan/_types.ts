@@ -28,3 +28,4 @@ export type ScanSummary = {
   medium: number;
   low: number;
 };
+

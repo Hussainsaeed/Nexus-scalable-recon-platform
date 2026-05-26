@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import type { ApiResponse, ScanSummary } from '@/app/scan/_types';
+import type { ApiResponse, ScanSummary, Vulnerability } from '@/app/scan/_types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
 
 export type ScanTargetProps = {
   onScanComplete?: (summary: ScanSummary, raw: ApiResponse) => void;
@@ -76,7 +76,7 @@ export default function ScanTarget({ onScanComplete }: ScanTargetProps) {
     }, 80);
 
     try {
-      const resp = await fetch(`${API_BASE}/api/scan`, {
+      const resp = await fetch(`http://localhost:5000/api/scan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: normalized })
@@ -105,10 +105,10 @@ export default function ScanTarget({ onScanComplete }: ScanTargetProps) {
       if (onScanComplete) {
         const summary: ScanSummary = {
           totalFindings: data.summary?.totalFindings ?? data.vulnerabilities.length,
-          critical: data.summary?.critical ?? data.vulnerabilities.filter((v) => v.severity === 'critical').length,
-          high: data.summary?.high ?? data.vulnerabilities.filter((v) => v.severity === 'high').length,
-          medium: data.summary?.medium ?? data.vulnerabilities.filter((v) => v.severity === 'medium').length,
-          low: data.summary?.low ?? data.vulnerabilities.filter((v) => v.severity === 'low').length
+          critical: data.summary?.critical ?? data.vulnerabilities.filter((v: Vulnerability) => v.severity === 'critical').length,
+          high: data.summary?.high ?? data.vulnerabilities.filter((v: Vulnerability) => v.severity === 'high').length,
+          medium: data.summary?.medium ?? data.vulnerabilities.filter((v: Vulnerability) => v.severity === 'medium').length,
+          low: data.summary?.low ?? data.vulnerabilities.filter((v: Vulnerability) => v.severity === 'low').length
         };
         onScanComplete(summary, data);
       }
@@ -229,7 +229,7 @@ export default function ScanTarget({ onScanComplete }: ScanTargetProps) {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-3">
-            {vulns.map((v) => (
+            {vulns.map((v: Vulnerability) => (
               <div key={v.id} className="rounded-2xl border border-[rgba(94,255,169,0.18)] bg-[rgba(5,9,19,0.55)] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">

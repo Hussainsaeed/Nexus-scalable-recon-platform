@@ -1,0 +1,87 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+type NavItem = {
+  href: string;
+  label: string;
+};
+
+const nav: NavItem[] = [
+  // App Router routes aligned with frontend/src/app/*
+  { href: '/', label: 'Dashboard' },
+  { href: '/scan', label: 'Scan Target' },
+  { href: '/findings', label: 'Findings' },
+  { href: '/settings', label: 'Settings' }
+];
+
+function routeIsActive(href: string, pathname: string | null): boolean {
+  if (!pathname) return false;
+  if (href === '/') return pathname === '/';
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export default function AppSidebar() {
+  const pathname = usePathname();
+
+  return (
+    <aside className="hidden md:flex w-64 flex-col border-r border-[rgba(94,255,169,0.18)] bg-[rgba(4,6,10,0.55)] backdrop-blur">
+      <div className="px-5 py-6">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-[rgba(94,255,169,0.12)] border border-[rgba(94,255,169,0.35)] shadow-glow flex items-center justify-center">
+            <span className="text-nexus-neon font-bold">N</span>
+          </div>
+
+          <div>
+            <div className="text-sm text-[rgba(94,255,169,0.9)] tracking-widest">NEXUS</div>
+            <div className="text-lg font-semibold">OS Dashboard</div>
+          </div>
+        </div>
+      </div>
+
+      <nav className="px-3 pb-6">
+        <div className="space-y-2">
+          {nav.map((item) => {
+            const active = routeIsActive(item.href, pathname);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={
+                  'group flex items-center justify-between rounded-xl px-4 py-3 text-sm border ' +
+                  (active
+                    ? 'border-[rgba(94,255,169,0.45)] bg-[rgba(94,255,169,0.10)] text-nexus-neon shadow-glow'
+                    : 'border-transparent bg-transparent text-zinc-300 hover:border-[rgba(94,255,169,0.25)] hover:bg-[rgba(94,255,169,0.06)]')
+                }
+              >
+                <span>{item.label}</span>
+                <span
+                  className={
+                    active ? 'text-[rgba(94,255,169,0.95)]' : 'text-zinc-500 group-hover:text-[rgba(94,255,169,0.75)]'
+                  }
+                >
+                  ▸
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      <div className="mt-auto px-5 pb-6">
+        <div className="rounded-2xl border border-[rgba(94,255,169,0.22)] bg-[rgba(5,9,19,0.55)] p-4">
+          <div className="text-xs text-[rgba(94,255,169,0.9)] tracking-widest">SYSTEM STATUS</div>
+          <div className="mt-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-nexus-neon shadow-glow" />
+              <span className="text-sm">Operational</span>
+            </div>
+            <span className="text-xs text-[rgba(94,255,169,0.8)]">v0.1</span>
+          </div>
+          <div className="mt-3 text-xs text-zinc-400">Simulated scanning MVP for UI + API integration.</div>
+        </div>
+      </div>
+    </aside>
+  );
+}

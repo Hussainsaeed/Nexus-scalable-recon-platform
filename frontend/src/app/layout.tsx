@@ -14,7 +14,7 @@ type NavItem = {
 const nav: NavItem[] = [
   { href: '/', label: 'Dashboard' },
   { href: '/scan', label: 'Scans' },
-  { href: '/vulnerabilities', label: 'Vulnerabilities' },
+  { href: '/findings', label: 'Findings' }, // تم تغييرها لتطابق مجلد findings
   { href: '/settings', label: 'Settings' }
 ];
 
