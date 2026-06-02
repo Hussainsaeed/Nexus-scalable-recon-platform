@@ -79,6 +79,18 @@ export default function LoginPage() {
         Login
       </button>
 
+      <p className="mt-4">
+  Don't have an account?
+
+  <a
+    href="/auth/register"
+    className="text-emerald-400 ml-2"
+  >
+    Register
+  </a>
+
+</p>
+
     </div>
   );
 }

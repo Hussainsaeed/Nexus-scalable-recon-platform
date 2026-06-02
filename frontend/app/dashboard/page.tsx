@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import Link from 'next/link';
 
 import { io } from 'socket.io-client';
@@ -30,6 +32,19 @@ interface ScanJob {
 export default function DashboardPage() {
 
   const API_URL = getApiUrl();
+
+  const router = useRouter();
+
+  const logout = () => {
+
+    localStorage.removeItem(
+      'token'
+    );
+  
+    router.push(
+      '/auth/login'
+    );
+  };
 
   const [stats, setStats] = useState({
     total: 0,
@@ -84,6 +99,20 @@ export default function DashboardPage() {
     };
 
   useEffect(() => {
+
+    const token =
+  localStorage.getItem(
+    'token'
+  );
+
+if (!token) {
+
+  router.push(
+    '/auth/login'
+  );
+
+  return;
+}
 
     const fetchStats = async () => {
 
@@ -184,15 +213,26 @@ return () => {
   socket.disconnect();
 };
 
-}, []);
+}, [router]);
 
   return (
 
     <main className="min-h-screen bg-black text-white p-10">
 
-      <h1 className="text-5xl font-bold mb-10 text-emerald-400">
-        Nexus Recon Dashboard
-      </h1>
+<div className="flex items-center justify-between mb-10">
+
+<h1 className="text-5xl font-bold text-emerald-400">
+  Nexus Recon Dashboard
+</h1>
+
+<button
+  onClick={logout}
+  className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg font-semibold transition-all"
+>
+  Logout
+</button>
+
+</div>
 
       {/* STATS */}
 

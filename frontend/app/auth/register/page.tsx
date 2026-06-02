@@ -129,6 +129,18 @@ export default function RegisterPage() {
             : 'Register'}
         </button>
 
+        <p className="mt-4 text-center">
+  Already have an account?
+
+  <a
+    href="/auth/login"
+    className="text-emerald-400 ml-2"
+  >
+    Login
+  </a>
+
+</p>
+
       </div>
 
     </div>
