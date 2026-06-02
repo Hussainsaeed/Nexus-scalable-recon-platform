@@ -1,43 +1,82 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, {useState,useEffect} from 'react';
+import { getApiUrl } from '../../lib/config';
 
 interface Vulnerability {
-  id: string;
-  title: string;
-  type: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  evidence: string;
-  confidence: number;
+
+  name: string;
+
+  severity: string;
+
+  description?: string;
+
+  matched?: string;
+
+  template?: string;
 }
 
 export default function FindingsPage() {
-  const [vulnerabilities] = useState<Vulnerability[]>([
-    {
-      id: 'VULN-001',
-      title: 'SQL Injection on /prod/id (Simulated)',
-      type: 'SQLi',
-      severity: 'high',
-      evidence: "GET /prod/id?id=1' OR '1'='1' --",
-      confidence: 84,
-    },
-    {
-      id: 'VULN-002',
-      title: 'Reflected XSS on /search (Simulated)',
-      type: 'XSS',
-      severity: 'medium',
-      evidence: "search=<img src=x onerror=alert(1)>",
-      confidence: 71,
-    },
-    {
-      id: 'VULN-003',
-      title: 'Outdated OpenSSL version detected (Simulated)',
-      type: 'InfoLeak',
-      severity: 'low',
-      evidence: 'TLS handshake banner indicates legacy OpenSSL build',
-      confidence: 59,
-    },
-  ]);
+  const [vulnerabilities, setVulnerabilities] =
+  useState<Vulnerability[]>([]);
+  const [scanInfo, setScanInfo] =
+  useState({
+    target: '',
+    riskScore: 0,
+    findings: 0,
+  });
+  useEffect(() => {
+
+    const fetchFindings =
+      async () => {
+
+        const API_URL =
+        getApiUrl();
+  
+        try {
+  
+          const response =
+  await fetch(
+    `${API_URL}/api/scan/history`
+  );
+  
+          const data =
+            await response.json();
+  
+            const jobs =
+            data.jobs || [];
+          
+          if (!jobs.length) return;
+          
+          const latestJob = jobs[0];
+
+const findings =
+  latestJob.results?.vulnerabilities || [];
+
+setVulnerabilities(findings);
+
+setScanInfo({
+  target:
+    latestJob.target || '-',
+
+  riskScore:
+    latestJob.results?.riskScore || 0,
+
+  findings:
+    findings.length,
+});
+  
+        } catch (error) {
+  
+          console.error(
+            error
+          );
+        }
+      };
+  
+    fetchFindings();
+  
+  }, []);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -55,6 +94,40 @@ export default function FindingsPage() {
         <p className="text-zinc-400 text-sm mt-1">المراجعة التفصيلية للثغرات الأمنية المكتشفة.</p>
       </div>
 
+      <div className="grid grid-cols-3 gap-4 mb-6">
+
+  <div className="border border-zinc-800 rounded-lg p-4 bg-zinc-950/50">
+    <p className="text-zinc-500 text-xs">
+      Target
+    </p>
+
+    <p className="text-emerald-400 font-semibold">
+      {scanInfo.target}
+    </p>
+  </div>
+
+  <div className="border border-zinc-800 rounded-lg p-4 bg-zinc-950/50">
+    <p className="text-zinc-500 text-xs">
+      Risk Score
+    </p>
+
+    <p className="text-red-400 font-semibold">
+      {scanInfo.riskScore}
+    </p>
+  </div>
+
+  <div className="border border-zinc-800 rounded-lg p-4 bg-zinc-950/50">
+    <p className="text-zinc-500 text-xs">
+      Findings
+    </p>
+
+    <p className="text-blue-400 font-semibold">
+      {scanInfo.findings}
+    </p>
+  </div>
+
+</div>
+
       <div className="border border-zinc-800 rounded-lg overflow-hidden bg-zinc-950/50 backdrop-blur-md">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -63,26 +136,43 @@ export default function FindingsPage() {
               <th className="p-4">Vulnerability</th>
               <th className="p-4">Severity</th>
               <th className="p-4">Evidence</th>
-              <th className="p-4 text-right">Confidence</th>
+              <th className="p-4 text-right">Template</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-900 text-sm">
-            {vulnerabilities.map((vuln) => (
-              <tr key={vuln.id} className="hover:bg-zinc-900/30 transition-colors">
-                <td className="p-4 font-mono text-zinc-500">{vuln.id}</td>
-                <td className="p-4 font-semibold text-white">{vuln.title}</td>
-                <td className="p-4">
-                  <span className={`px-2 py-1 rounded text-xs uppercase border ${getSeverityColor(vuln.severity)}`}>
-                    {vuln.severity}
-                  </span>
-                </td>
-                <td className="p-4 font-mono text-zinc-400 bg-zinc-900/40 rounded px-2 py-1 max-w-xs truncate border border-zinc-800/50">
-                  {typeof vuln.evidence === 'object' ? JSON.stringify(vuln.evidence) : vuln.evidence}
-                </td>
-                <td className="p-4 text-right font-semibold text-emerald-400">{vuln.confidence}%</td>
-              </tr>
-            ))}
-          </tbody>
+  {vulnerabilities.map((vuln, index) => (
+    <tr
+      key={index}
+      className="hover:bg-zinc-900/30 transition-colors"
+    >
+      <td className="p-4 font-mono text-zinc-500">
+        {index + 1}
+      </td>
+
+      <td className="p-4 font-semibold text-white">
+        {vuln.name}
+      </td>
+
+      <td className="p-4">
+        <span
+          className={`px-2 py-1 rounded text-xs uppercase border ${getSeverityColor(
+            vuln.severity
+          )}`}
+        >
+          {vuln.severity}
+        </span>
+      </td>
+
+      <td className="p-4 font-mono text-zinc-400">
+        {vuln.matched || '-'}
+      </td>
+
+      <td className="p-4 text-right text-blue-400">
+        {vuln.template || '-'}
+      </td>
+    </tr>
+  ))}
+</tbody>
         </table>
       </div>
     </div>

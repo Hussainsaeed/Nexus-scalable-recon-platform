@@ -1,0 +1,68 @@
+GET http://localhost:5000/
+
+###
+
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Engineer Hussain Mohammad Saeed",
+  "email": "engineerhussainmohammadsaeed@gmail.com",
+  "password": "8.5.2026@Hussain.27.11"
+}
+
+###
+
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "engineerhussainmohammadsaeed@gmail.com",
+  "password": "8.5.2026@Hussain.27.11"
+}
+
+###
+
+POST http://localhost:5000/api/scan
+Content-Type: application/json
+
+{
+  "url":"stackoverflow.com"
+}
+
+###
+
+POST http://localhost:5000/api/scan
+Content-Type: application/json
+
+{
+  "url": "google.com"
+}
+
+###
+
+GET http://localhost:5000/api/scan/history
+
+###
+
+GET http://localhost:5000/api/scan/stats
+
+###
+
+GET http://localhost:5000/api/scan/6a171d124a0d550314f831ab
+
+###
+
+GET http://localhost:5000/api/servers
+Authorization: Bearer YOUR_TOKEN_HERE
+
+###
+
+POST http://localhost:5000/api/servers
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "name": "Admin Server",
+  "ip": "45.249.79.52"
+}

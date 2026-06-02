@@ -3,19 +3,22 @@ import './globals.css';
 import AppShell from './app-shell';
 
 export const metadata: Metadata = {
-  title: 'NEXUS OS — Cybersecurity Scanning Dashboard',
-  description: 'Web-based Cybersecurity Scanning Dashboard (MVP)'
+  title: 'NEXUS OS',
+  description: 'Cybersecurity Scanning Platform',
 };
 
 export default function RootLayout({
-  children: _children
-}: Readonly<{ children: React.ReactNode }>) {
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className="dark">
       <body>
-        <AppShell />
+        <AppShell>
+          {children}
+        </AppShell>
       </body>
     </html>
   );
 }
-
