@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useParams } from 'next/navigation';
+import {apiFetch,} from '../../../services/api';
 
 import {
   PieChart,
@@ -70,9 +71,9 @@ const [stage, setStage] =
       try {
 
         const response =
-          await fetch(
-            `http://localhost:5000/api/scan/${id}`
-          );
+  await apiFetch(
+    `http://localhost:5000/api/scan/${id}`
+  );
 
           const data =
           await response.json();

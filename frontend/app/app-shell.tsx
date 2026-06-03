@@ -1,12 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 export default function AppShell({
-  children,
+  children, 
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
+const isAuthPage =
+  pathname === '/auth/login' ||
+  pathname === '/auth/register';
   return (
     <div className="min-h-screen text-zinc-100">
 
@@ -27,17 +34,21 @@ export default function AppShell({
 
           {/* Sidebar */}
 
+          {!isAuthPage && (
           <aside className="hidden md:flex w-64 flex-col border-r border-[rgba(94,255,169,0.18)] bg-[rgba(4,6,10,0.55)] backdrop-blur">
 
             <div className="px-5 py-6">
 
               <div className="flex items-center gap-3">
 
-                <div className="h-10 w-10 rounded-xl bg-[rgba(94,255,169,0.12)] border border-[rgba(94,255,169,0.35)] shadow-glow flex items-center justify-center">
-                  <span className="text-nexus-neon font-bold">
-                    N
-                  </span>
-                </div>
+              <div className="h-10 w-10 rounded-xl overflow-hidden flex items-center justify-center">
+  <Image
+    src="/nexus-logo.png"
+    alt="Nexus"
+    width={40}
+    height={40}
+  />
+</div>
 
                 <div>
                   <div className="text-sm text-[rgba(94,255,169,0.9)] tracking-widest">
@@ -120,10 +131,12 @@ export default function AppShell({
             </div>
 
           </aside>
+          )}
 
           {/* Main */}
 
-          <main className="flex-1">
+          <main className={isAuthPage? 'w-full': 'flex-1'}>
+          {!isAuthPage && (
 
             <header className="sticky top-0 z-10 border-b border-[rgba(94,255,169,0.18)] bg-[rgba(4,6,10,0.65)] backdrop-blur">
 
@@ -144,6 +157,7 @@ export default function AppShell({
               </div>
 
             </header>
+            )}
 
             <div className="p-4 md:p-8">
               {children}

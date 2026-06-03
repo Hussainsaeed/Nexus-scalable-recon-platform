@@ -4,6 +4,7 @@ import React, {useState,useEffect,} from 'react';
 import { getApiUrl } from '../../lib/config';
 import { io } from 'socket.io-client';
 import { useRouter } from 'next/navigation';
+import {apiFetch,} from '../../services/api';
 
 interface Vulnerability {
 
@@ -225,9 +226,9 @@ export default function ScanPage() {
     .replace('https://', '')
     .replace('http://', '')
     .split('/')[0];
-      const response =
-      await fetch(
-        `${API_URL}/api/scan`,
+    const response =
+    await apiFetch(
+      `${API_URL}/api/scan`,
           {
 
             method: 'POST',

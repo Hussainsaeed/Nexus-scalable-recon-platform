@@ -10,6 +10,10 @@ import { io } from 'socket.io-client';
 
 import { getApiUrl } from '../../lib/config';
 
+import {
+  apiFetch,
+} from '../../services/api';
+
 
 interface Vulnerability {
   name: string;
@@ -72,12 +76,12 @@ export default function DashboardPage() {
         const API_URL =
           getApiUrl();
     
-        await fetch(
-          `${API_URL}/api/scan/history`,
-          {
-            method: 'DELETE',
-          }
-        );
+          await apiFetch(
+            `${API_URL}/api/scan/history`,
+            {
+              method: 'DELETE',
+            }
+          );
     
         setJobs([]);
     
@@ -103,6 +107,9 @@ export default function DashboardPage() {
     const token =
   localStorage.getItem(
     'token'
+  ) ||
+  sessionStorage.getItem(
+    'token'
   );
 
 if (!token) {
@@ -118,10 +125,10 @@ if (!token) {
 
       try {
 
-const response =
-  await fetch(
-    `${API_URL}/api/scan/history`
-  );
+        const response =
+        await apiFetch(
+          `${API_URL}/api/scan/history`
+        );
 
         const data =
           await response.json();

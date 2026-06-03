@@ -2,6 +2,7 @@
 
 import React, {useState,useEffect} from 'react';
 import { getApiUrl } from '../../lib/config';
+import {apiFetch,} from '../../services/api';
 
 interface Vulnerability {
 
@@ -36,7 +37,7 @@ export default function FindingsPage() {
         try {
   
           const response =
-  await fetch(
+  await apiFetch(
     `${API_URL}/api/scan/history`
   );
   
