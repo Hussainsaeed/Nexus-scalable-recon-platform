@@ -251,12 +251,27 @@ socket.emit(
 </h1>
 
 <button
-  onClick={() =>
-    window.open(
+  onClick={async () => {
+    const token =
+      localStorage.getItem('token');
+  
+    const response = await fetch(
       `http://localhost:5000/api/scan/report/${id}`,
-      '_blank'
-    )
-  }
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  
+    const blob =
+      await response.blob();
+  
+    const url =
+      window.URL.createObjectURL(blob);
+  
+    window.open(url, '_blank');
+  }}
   className="
     bg-emerald-600
     hover:bg-emerald-500

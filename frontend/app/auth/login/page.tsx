@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
+import Link from 'next/link';
+
 import {
   loginUser,
 } from '../../../services/auth.service';
@@ -236,17 +238,17 @@ export default function LoginPage() {
 
   </label>
 
-  <button
-    type="button"
-    className="
-      text-sm
-      text-emerald-400
-      hover:text-emerald-300
-      transition
-    "
-  >
-    Forgot Password?
-  </button>
+  <Link
+  href="/auth/forgot-password"
+  className="
+    text-sm
+    text-emerald-400
+    hover:text-emerald-300
+    transition
+  "
+>
+  Forgot Password?
+</Link>
 
 </div>
 

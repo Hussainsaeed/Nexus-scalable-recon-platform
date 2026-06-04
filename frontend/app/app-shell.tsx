@@ -11,9 +11,8 @@ export default function AppShell({
 }) {
   const pathname = usePathname();
 
-const isAuthPage =
-  pathname === '/auth/login' ||
-  pathname === '/auth/register';
+  const isAuthPage =
+  pathname.startsWith('/auth');
   return (
     <div className="min-h-screen text-zinc-100">
 
