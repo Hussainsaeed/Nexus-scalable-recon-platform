@@ -1,10 +1,49 @@
 import { Request, Response } from "express";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import User from "../models/User.model";
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+
+// ======================================
+// MAIL TRANSPORTER
+// ======================================
+
+const transporter =
+  nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+
+    port: Number(
+      process.env.SMTP_PORT
+    ),
+
+    secure: false,
+
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  console.log(
+    "SMTP_HOST =",
+    process.env.SMTP_HOST
+  );
+  
+  console.log(
+    "SMTP_PORT =",
+    process.env.SMTP_PORT
+  );
+  
+  console.log(
+    "SMTP_USER =",
+    process.env.SMTP_USER
+  );
 
 // ======================================
 // REGISTER USER
@@ -282,12 +321,41 @@ export const forgotPassword = async (
 
     await user.save();
 
-    return res.status(200).json({
-      success: true,
-      message:
-        "Reset token generated",
-      resetToken,
-    });
+    const resetUrl =
+  `${process.env.FRONTEND_URL}/auth/reset-password/${resetToken}`;
+
+  console.log(
+    'RESET URL:',
+    resetUrl
+  );
+
+  const info = await transporter.sendMail({
+    from: process.env.SMTP_USER,
+  
+    to: user.email,
+  
+    subject: 'Reset Password',
+  
+    html: `
+  <h1>Nexus Recon Platform</h1>
+
+  <h2>Password Reset</h2>
+
+  <p>Click the button below:</p>
+
+  <a href="${resetUrl}">
+    Reset Password
+  </a>
+`,
+  });
+  
+  console.log('EMAIL SENT:', info);
+
+return res.status(200).json({
+  success: true,
+  message:
+    "Password reset email sent",
+});
 
   } catch (error) {
 
@@ -368,6 +436,120 @@ export const resetPassword = async (
       success: false,
       error:
         "Password reset failed",
+    });
+
+  }
+};
+export const getMe = async (
+  req: any,
+  res: Response
+) => {
+  try {
+
+    const user = await User.findById(
+      req.user.id
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    return res.json({
+      success: true,
+      user,
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      error: 'Server error',
+    });
+
+  }
+};
+export const updateAvatar = async (
+  req: any,
+  res: Response
+) => {
+  try {
+
+    const { avatar } = req.body;
+
+    if (!avatar) {
+      return res.status(400).json({
+        success: false,
+        error: "Avatar is required",
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        avatar,
+      },
+      {
+        new: true,
+      }
+    ).select("-password");
+
+    return res.json({
+      success: true,
+      user,
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      error: "Avatar update failed",
+    });
+
+  }
+};
+
+export const uploadAvatar = async (
+  req: any,
+  res: Response
+) => {
+  try {
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No file uploaded',
+      });
+    }
+
+    const avatar =
+      `http://localhost:5000/uploads/${req.file.filename}`;
+
+    const user =
+      await User.findByIdAndUpdate(
+        req.user.id,
+        { avatar },
+        { new: true }
+      ).select('-password');
+
+    return res.json({
+      success: true,
+      user,
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      error: 'Upload failed',
     });
 
   }

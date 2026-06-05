@@ -89,6 +89,19 @@ export default function AppShell({
                 </Link>
 
                 <Link
+                href="/profile"
+                className="
+                block rounded-xl px-4 py-3 text-sm
+                border border-transparent
+                text-zinc-300
+                hover:border-[rgba(21, 6, 234, 0.25)]
+                hover:bg-[rgba(94,255,169,0.06)]
+                "
+                >
+                Profile
+                </Link>
+
+                <Link
                   href="/settings"
                   className="block rounded-xl px-4 py-3 text-sm border border-transparent text-zinc-300 hover:border-[rgba(94,255,169,0.25)] hover:bg-[rgba(94,255,169,0.06)]"
                 >

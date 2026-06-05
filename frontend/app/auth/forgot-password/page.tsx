@@ -58,10 +58,17 @@ export default function ForgotPasswordPage() {
         return;
       }
 
-      console.log(
-        'RESET TOKEN:',
-        data.resetToken
-      );
+      if (!response.ok) {
+
+        setError(
+          data.error ||
+          'Request failed'
+        );
+      
+        return;
+      }
+      
+      setSuccess(true);
 
       setSuccess(true);
 
