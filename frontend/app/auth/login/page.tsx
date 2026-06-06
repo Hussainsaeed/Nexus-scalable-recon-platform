@@ -284,30 +284,34 @@ export default function LoginPage() {
           </div>
 
            {/* Google */}
-  <button
-    className="
-      w-full
-      flex
-      items-center
-      justify-center
-      gap-3
-      border
-      border-zinc-700
-      hover:border-zinc-500
-      bg-zinc-900/50
-      rounded-xl
-      py-3
-      transition-all
-      duration-300
-      hover:bg-zinc-800/50
-      hover:scale-[1.01]
-    "
-  >
-    <FcGoogle size={20} />
-    <span className="font-medium">
-      Continue with Google
-    </span>
-  </button>
+<button
+  onClick={() => {
+    window.location.href =
+      'http://localhost:5000/api/auth/google';
+  }}
+  className="
+    w-full
+    flex
+    items-center
+    justify-center
+    gap-3
+    border
+    border-zinc-700
+    hover:border-zinc-500
+    bg-zinc-900/50
+    rounded-xl
+    py-3
+    transition-all
+    duration-300
+    hover:bg-zinc-800/50
+    hover:scale-[1.01]
+  "
+>
+  <FcGoogle size={20} />
+  <span className="font-medium">
+    Continue with Google
+  </span>
+</button>
 
   {/* GitHub */}
   <button

@@ -4,6 +4,7 @@ import express, {
 } from "express";
 
 import ScanJob from "../models/ScanJob.model";
+import AuditLog from "../models/AuditLog.model";
 
 import {
   runScanJob,
@@ -14,6 +15,8 @@ import PDFDocument from "pdfkit";
 import { scanQueue } from '../queue/scan.queue';
 
 import { authMiddleware } from '../auth/auth.middleware';
+import { allowRoles }
+  from '../middleware/roleMiddleware';
 
 const router = express.Router();
 
@@ -24,6 +27,12 @@ const router = express.Router();
 router.post(
   "/",
   authMiddleware,
+
+  allowRoles(
+    'owner',
+    'admin',
+    'analyst'
+  ),
 
   async (
     req: Request,
@@ -48,16 +57,28 @@ router.post(
 
       // CREATE JOB
 
+      console.log('REQ USER:', (req as any).user);
+console.log('USER ID:', (req as any).user?.Id);
+
       const scanJob =
   await ScanJob.create({
     target: url,
 
-    userId:
-      (req as any).user.userId,
+    userId: (req as any).user.id,
 
     status: "queued",
 
     progress: 0,
+  });
+
+  await AuditLog.create({
+    userId: (req as any).user.id,
+  
+    action:
+      'SCAN_CREATED',
+  
+    details:
+      `Target: ${url}`,
   });
 
       console.log(
@@ -119,7 +140,7 @@ router.get(
       const jobs =
   await ScanJob.find({
     userId:
-      (req as any).user.userId,
+  (req as any).user.id,
   })
           .sort({
             createdAt: -1,
@@ -149,7 +170,13 @@ router.get(
 
 router.delete(
   "/history",
+
   authMiddleware,
+
+  allowRoles(
+    'owner',
+    'admin'
+  ),
 
   async (
     req: Request,
@@ -159,7 +186,7 @@ router.delete(
 
       await ScanJob.deleteMany({
         userId:
-          (req as any).user.userId,
+  (req as any).user.id,
       });
 
       return res.status(200).json({
@@ -196,13 +223,13 @@ router.get(
       const totalScans =
   await ScanJob.countDocuments({
     userId:
-      (req as any).user.userId,
+  (req as any).user.id,
   });
 
   const completed =
   await ScanJob.countDocuments({
     userId:
-      (req as any).user.userId,
+  (req as any).user.id,
 
     status: "completed",
   });
@@ -210,7 +237,7 @@ router.get(
   const failed =
   await ScanJob.countDocuments({
     userId:
-      (req as any).user.userId,
+  (req as any).user.id,
 
     status: "failed",
   });
@@ -255,7 +282,7 @@ router.get(
     _id: req.params.id,
 
     userId:
-      (req as any).user.userId,
+  (req as any).user.id,
   });
 
       if (!job) {
@@ -374,6 +401,44 @@ router.get(
   }
 );
 
+router.get(
+  "/audit-logs",
+  authMiddleware,
+
+  async (
+    req: Request,
+    res: Response
+  ) => {
+    try {
+
+      const logs =
+        await AuditLog.find({
+          userId:
+  (req as any).user.id,
+        })
+          .sort({
+            createdAt: -1,
+          })
+          .limit(50);
+
+      return res.status(200).json({
+        success: true,
+        count: logs.length,
+        logs,
+      });
+
+    } catch (error) {
+
+      return res.status(500).json({
+        success: false,
+        error:
+          "Failed to fetch audit logs",
+      });
+
+    }
+  }
+);
+
 // ======================================
 // GET SINGLE JOB
 // ======================================
@@ -393,7 +458,7 @@ router.get(
     _id: req.params.id,
 
     userId:
-      (req as any).user.userId,
+  (req as any).user.id,
   });
 
       if (!job) {

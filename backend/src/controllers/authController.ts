@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+import fs from 'fs';
+import path from 'path';
+
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -528,15 +531,50 @@ export const uploadAvatar = async (
       });
     }
 
-    const avatar =
-      `http://localhost:5000/uploads/${req.file.filename}`;
+    const existingUser =
+  await User.findById(
+    req.user.id
+  );
 
-    const user =
-      await User.findByIdAndUpdate(
-        req.user.id,
-        { avatar },
-        { new: true }
-      ).select('-password');
+if (
+  existingUser?.avatar &&
+  existingUser.avatar.includes(
+    '/uploads/'
+  )
+) {
+
+  const oldFile =
+    existingUser.avatar.split(
+      '/uploads/'
+    )[1];
+
+  const oldFilePath =
+    path.join(
+      process.cwd(),
+      'uploads',
+      oldFile
+    );
+
+  if (
+    fs.existsSync(
+      oldFilePath
+    )
+  ) {
+    fs.unlinkSync(
+      oldFilePath
+    );
+  }
+}
+
+const avatar =
+  `http://localhost:5000/uploads/${req.file.filename}`;
+
+const user =
+  await User.findByIdAndUpdate(
+    req.user.id,
+    { avatar },
+    { new: true }
+  ).select('-password');
 
     return res.json({
       success: true,
@@ -550,6 +588,80 @@ export const uploadAvatar = async (
     return res.status(500).json({
       success: false,
       error: 'Upload failed',
+    });
+  }
+};
+
+export const updateAccount = async (
+  req: any,
+  res: Response
+) => {
+  try {
+
+    const {
+      name,
+      currentPassword,
+      newPassword,
+    } = req.body;
+
+    const user =
+  await User.findById(
+    req.user.id
+  );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    if (name) {
+      user.name = name;
+    }
+
+    if (
+      currentPassword &&
+      newPassword
+    ) {
+
+      const isMatch =
+        await bcrypt.compare(
+          currentPassword,
+          user.password
+        );
+
+      if (!isMatch) {
+        return res.status(400).json({
+          success: false,
+          message:
+            'Current password is incorrect',
+        });
+      }
+
+      user.password =
+        await bcrypt.hash(
+          newPassword,
+          10
+        );
+    }
+
+    await user.save();
+
+    return res.json({
+      success: true,
+      message:
+        'Account updated successfully',
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'Server error',
     });
 
   }

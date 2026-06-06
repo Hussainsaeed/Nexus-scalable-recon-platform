@@ -4,6 +4,74 @@ export default function AuthBackground() {
   return (
     <div className="fixed inset-0 overflow-hidden -z-10">
 
+      {/* Aurora Layer */}
+
+<motion.div
+  animate={{
+    x: [0, 100, 0],
+    y: [0, 50, 0],
+  }}
+  transition={{
+    duration: 18,
+    repeat: Infinity,
+    ease: 'linear',
+  }}
+  className="
+    absolute
+    top-[-250px]
+    left-[-250px]
+    w-[900px]
+    h-[900px]
+    rounded-full
+    bg-emerald-500/15
+    blur-[220px]
+  "
+/>
+
+<motion.div
+  animate={{
+    x: [0, -120, 0],
+    y: [0, -80, 0],
+  }}
+  transition={{
+    duration: 22,
+    repeat: Infinity,
+    ease: 'linear',
+  }}
+  className="
+    absolute
+    bottom-[-300px]
+    right-[-300px]
+    w-[1000px]
+    h-[1000px]
+    rounded-full
+    bg-cyan-500/15
+    blur-[260px]
+  "
+/>
+
+<motion.div
+  animate={{
+    opacity: [0.3, 0.7, 0.3],
+  }}
+  transition={{
+    duration: 8,
+    repeat: Infinity,
+  }}
+  className="
+    absolute
+    left-1/2
+    top-1/2
+    -translate-x-1/2
+    -translate-y-1/2
+    w-[700px]
+    h-[700px]
+    rounded-full
+    bg-emerald-400/5
+    blur-[180px]
+  "
+/>
+
       {/* Emerald Orb */}
       <motion.div
         animate={{
@@ -49,6 +117,39 @@ export default function AuthBackground() {
           blur-3xl
         "
       />
+
+      {/* Radar Sweep */}
+
+<motion.div
+  animate={{
+    rotate: [0, 360],
+  }}
+  transition={{
+    duration: 6,
+    repeat: Infinity,
+    ease: 'linear',
+  }}
+  className="
+    absolute
+    left-1/2
+    top-1/2
+    -translate-x-1/2
+    -translate-y-1/2
+    w-[650px]
+    h-[650px]
+    rounded-full
+    pointer-events-none
+  "
+>
+  <div
+    className="
+      absolute
+      inset-0
+      rounded-full
+      bg-[conic-gradient(from_0deg,rgba(215, 12, 12, 0.25),transparent_45deg)]
+    "
+  />
+</motion.div>
 
       {/* Radar Ring */}
       <motion.div
@@ -215,6 +316,66 @@ export default function AuthBackground() {
         }}
       />
 
+      {/* Hexagonal Cyber Grid */}
+
+<div
+  className="
+    absolute
+    inset-0
+    opacity-[0.06]
+  "
+  style={{
+    backgroundImage: `
+      radial-gradient(
+        circle at center,
+        rgba(185, 182, 16, 0.15) 1px,
+        transparent 1px
+      )
+    `,
+    backgroundSize: '60px 52px',
+    backgroundPosition: '0 0, 30px 26px',
+  }}
+/>
+
+<svg
+  className="
+    absolute
+    inset-0
+    w-full
+    h-full
+    opacity-[0.05]
+  "
+>
+  <defs>
+    <pattern
+      id="hexPattern"
+      width="60"
+      height="52"
+      patternUnits="userSpaceOnUse"
+    >
+      <polygon
+        points="
+          30,0
+          60,13
+          60,39
+          30,52
+          0,39
+          0,13
+        "
+        fill="none"
+        stroke="rgb(16, 58, 185)"
+        strokeWidth="0.5"
+      />
+    </pattern>
+  </defs>
+
+  <rect
+    width="100%"
+    height="100%"
+    fill="url(#hexPattern)"
+  />
+</svg>
+
       {/* Scanlines */}
       <div className="absolute inset-0 nexus-scanlines" />
 
@@ -318,6 +479,292 @@ export default function AuthBackground() {
 />
 
 </div>
+
+{/* Floating Data Streams */}
+
+<motion.div
+  animate={{
+    x: ['-10%', '110%'],
+  }}
+  transition={{
+    duration: 8,
+    repeat: Infinity,
+    ease: 'linear',
+  }}
+  className="
+    absolute
+    top-[20%]
+    h-[2px]
+    w-[250px]
+    bg-gradient-to-r
+    from-transparent
+    via-cyan-400/80
+    to-transparent
+    blur-[1px]
+  "
+/>
+
+<motion.div
+  animate={{
+    x: ['110%', '-10%'],
+  }}
+  transition={{
+    duration: 10,
+    repeat: Infinity,
+    ease: 'linear',
+  }}
+  className="
+    absolute
+    top-[60%]
+    h-[2px]
+    w-[300px]
+    bg-gradient-to-r
+    from-transparent
+    via-emerald-400/80
+    to-transparent
+    blur-[1px]
+  "
+/>
+
+<motion.div
+  animate={{
+    y: ['110%', '-10%'],
+  }}
+  transition={{
+    duration: 12,
+    repeat: Infinity,
+    ease: 'linear',
+  }}
+  className="
+    absolute
+    right-[20%]
+    w-[2px]
+    h-[250px]
+    bg-gradient-to-b
+    from-transparent
+    via-cyan-400/60
+    to-transparent
+    blur-[1px]
+  "
+/>
+
+{/* HUD Labels */}
+
+<motion.div
+  animate={{
+    opacity: [0.4, 1, 0.4],
+  }}
+  transition={{
+    duration: 3,
+    repeat: Infinity,
+  }}
+  className="
+    absolute
+    top-16
+    left-16
+    text-emerald-400/70
+    font-mono
+    text-xs
+    tracking-[0.25em]
+  "
+>
+  ACTIVE THREAT INTELLIGENCE
+</motion.div>
+
+<motion.div
+  animate={{
+    opacity: [0.3, 0.9, 0.3],
+  }}
+  transition={{
+    duration: 4,
+    repeat: Infinity,
+  }}
+  className="
+    absolute
+    top-28
+    left-16
+    text-cyan-400/70
+    font-mono
+    text-xs
+    tracking-[0.25em]
+  "
+>
+  LIVE RECON NETWORK
+</motion.div>
+
+<motion.div
+  animate={{
+    opacity: [0.3, 1, 0.3],
+  }}
+  transition={{
+    duration: 5,
+    repeat: Infinity,
+  }}
+  className="
+    absolute
+    bottom-16
+    right-16
+    text-emerald-400/70
+    font-mono
+    text-xs
+    tracking-[0.25em]
+  "
+>
+  ANALYSIS ONLINE
+</motion.div>
+
+{/* Activity Feed */}
+
+<div
+  className="
+    absolute
+    bottom-20
+    right-16
+    border
+    border-cyan-500/20
+    bg-black/20
+    backdrop-blur-md
+    rounded-xl
+    px-4
+    py-3
+    min-w-[260px]
+  "
+>
+  <div className="text-cyan-400 text-xs font-mono mb-2">
+    LIVE ACTIVITY
+  </div>
+
+  <div className="space-y-1 text-xs font-mono text-zinc-300">
+
+    <div>
+      [12:41] Scan Started
+    </div>
+
+    <div>
+      [12:42] Ports Discovered
+    </div>
+
+    <div>
+      [12:43] Nuclei Running
+    </div>
+
+    <div>
+      [12:44] Report Generated
+    </div>
+
+  </div>
+</div>
+
+{/* Threat Counter */}
+
+<motion.div
+  animate={{
+    opacity: [0.5, 1, 0.5],
+  }}
+  transition={{
+    duration: 2,
+    repeat: Infinity,
+  }}
+  className="
+    absolute
+    top-16
+    right-16
+    border
+    border-red-500/20
+    bg-black/20
+    backdrop-blur-md
+    rounded-xl
+    px-4
+    py-3
+  "
+>
+  <div className="text-red-400 text-xs font-mono">
+    THREATS DETECTED
+  </div>
+
+  <div className="text-2xl font-bold text-red-400">
+    127
+  </div>
+</motion.div>
+
+{/* Live Nodes */}
+
+<div
+  className="
+    absolute
+    top-36
+    right-16
+    border
+    border-cyan-500/20
+    bg-black/20
+    backdrop-blur-md
+    rounded-xl
+    px-4
+    py-3
+  "
+>
+  <div className="text-cyan-400 text-xs font-mono">
+    LIVE NODES
+  </div>
+
+  <div className="text-2xl font-bold text-cyan-400">
+    2,847
+  </div>
+</div>
+
+{/* System Health */}
+
+<div
+  className="
+    absolute
+    bottom-20
+    left-16
+    border
+    border-emerald-500/20
+    bg-black/20
+    backdrop-blur-md
+    rounded-xl
+    px-4
+    py-3
+    min-w-[220px]
+  "
+>
+  <div className="text-emerald-400 text-xs font-mono mb-2">
+    SYSTEM HEALTH
+  </div>
+
+  <div className="space-y-1 text-xs font-mono">
+    <div className="text-emerald-300">
+      ● API ONLINE
+    </div>
+
+    <div className="text-emerald-300">
+      ● AI ENGINE READY
+    </div>
+
+    <div className="text-emerald-300">
+      ● SCAN CLUSTER ACTIVE
+    </div>
+  </div>
+</div>
+
+<motion.span
+  animate={{
+    opacity: [0.3, 1, 0.3],
+  }}
+  transition={{
+    duration: 1,
+    repeat: Infinity,
+  }}
+  className="
+    inline-block
+    w-2
+    h-2
+    rounded-full
+    bg-emerald-400
+    mr-2
+  "
+/>
 
     </div>
   );

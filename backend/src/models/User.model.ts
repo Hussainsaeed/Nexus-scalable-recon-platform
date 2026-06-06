@@ -43,16 +43,15 @@ const userSchema = new Schema<IUser>(
       minlength: 6,
     },
     role: {
-        type: String,
-      
-        enum: [
-          "admin",
-          "analyst",
-          "user",
-        ],
-      
-        default: "user",
-      },
+      type: String,
+      enum: [
+        'owner',
+        'admin',
+        'analyst',
+        'viewer',
+      ],
+      default: 'viewer',
+    },
       avatar: {
         type: String,
         default: "",

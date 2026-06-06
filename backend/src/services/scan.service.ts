@@ -561,7 +561,15 @@ console.log(
     // SAVE RESULTS
     // ======================================
 
+    const scanJob = await ScanJob.findById(jobId);
+
+if (!scanJob) {
+  throw new Error('ScanJob not found');
+}
+
     await ScanResult.create({
+
+      userId: scanJob.userId,
 
       target,
 

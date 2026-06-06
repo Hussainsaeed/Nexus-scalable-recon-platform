@@ -7,8 +7,10 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import passport from 'passport';
 
 import './workers/scan.worker';
+import './auth/google.strategy';
 
 import authRoutes from './auth/auth.routes';
 import path from 'path';
@@ -22,6 +24,8 @@ const app = express();
 app.use(cors());
 
 app.use(express.json());
+
+app.use(passport.initialize());
 
 app.use(
   '/uploads',
