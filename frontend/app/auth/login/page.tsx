@@ -315,6 +315,11 @@ export default function LoginPage() {
 
   {/* GitHub */}
   <button
+  onClick={() => {
+    window.location.href =
+      'http://localhost:5000/api/auth/github';
+  }}
+  
     className="
       w-full
       flex

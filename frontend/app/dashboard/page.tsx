@@ -55,6 +55,8 @@ export default function DashboardPage() {
     completed: 0,
     failed: 0,
     risk: 0,
+    vulnerabilities: 0,
+    averageRisk: 0,
   });
 
   const [jobs, setJobs] =
@@ -90,6 +92,8 @@ export default function DashboardPage() {
           completed: 0,
           failed: 0,
           risk: 0,
+          vulnerabilities: 0,
+          averageRisk: 0,
         });
     
       } catch (error) {
@@ -140,7 +144,6 @@ if (!token) {
 
         const total =
           jobsData.length;
-
         const completed =
           jobsData.filter(
             (job: ScanJob) =>
@@ -153,6 +156,8 @@ if (!token) {
               job.status === 'failed'
           ).length;
 
+          let totalVulnerabilities = 0;
+
         let totalRisk = 0;
 
         jobsData.forEach(
@@ -160,6 +165,9 @@ if (!token) {
 
             const vulns =
               job.results?.vulnerabilities || [];
+
+              totalVulnerabilities +=
+                vulns.length;
 
             vulns.forEach(
               (vuln: Vulnerability) => {
@@ -188,15 +196,24 @@ if (!token) {
                   totalRisk += 1;
                 }
               }
+              
             );
           }
         );
+
+        const averageRisk =
+  total > 0
+    ? Math.round(totalRisk / total)
+    : 0;
 
         setStats({
           total,
           completed,
           failed,
           risk: totalRisk,
+          vulnerabilities:
+          totalVulnerabilities,
+          averageRisk,
         });
 
       } catch (error) {
@@ -243,7 +260,7 @@ return () => {
 
       {/* STATS */}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-12">
 
         <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 hover:border-emerald-500 transition-all">
           <h2 className="text-zinc-400 text-sm">
@@ -286,6 +303,30 @@ return () => {
         </div>
 
       </div>
+
+      <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 hover:border-blue-500 transition-all">
+
+  <h2 className="text-zinc-400 text-sm">
+    Total Vulnerabilities
+  </h2>
+
+  <p className="text-4xl font-bold mt-3 text-blue-400">
+    {stats.vulnerabilities}
+  </p>
+
+</div>
+
+<div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 hover:border-cyan-500 transition-all">
+
+  <h2 className="text-zinc-400 text-sm">
+    Average Risk
+  </h2>
+
+  <p className="text-4xl font-bold mt-3 text-cyan-400">
+    {stats.averageRisk}
+  </p>
+
+</div>
 
       {/* RESULTS TABLE */}
 

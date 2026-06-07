@@ -94,6 +94,51 @@ router.get(
     res.redirect(
       `http://localhost:3000/auth/success?token=${token}`
     );
+
+  }
+);
+
+router.get(
+  '/github',
+  passport.authenticate(
+    'github',
+    {
+      scope: ['user:email'],
+    }
+  )
+);
+
+router.get(
+  '/github/callback',
+
+  passport.authenticate(
+    'github',
+    {
+      session: false,
+      failureRedirect:
+        'http://localhost:3000/login',
+    }
+  ),
+
+  async (req: any, res) => {
+
+    const token = jwt.sign(
+      {
+        id: req.user._id,
+        email: req.user.email,
+        role: req.user.role,
+      },
+
+      process.env.JWT_SECRET as string,
+
+      {
+        expiresIn: '7d',
+      }
+    );
+
+    res.redirect(
+      `http://localhost:3000/auth/success?token=${token}`
+    );
   }
 );
 

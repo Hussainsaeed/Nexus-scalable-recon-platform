@@ -11,6 +11,7 @@ import passport from 'passport';
 
 import './workers/scan.worker';
 import './auth/google.strategy';
+import './auth/github.strategy';
 
 import authRoutes from './auth/auth.routes';
 import path from 'path';
