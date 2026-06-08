@@ -7,6 +7,9 @@ const worker = new Worker(
 
   async (job) => {
 
+    console.log('[WORKER STARTED]');
+    console.log('JOB DATA:', job.data);
+
     const {
       jobId,
       target,

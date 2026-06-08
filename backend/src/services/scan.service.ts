@@ -348,6 +348,10 @@ io.to(jobId).emit(
   }
 );
 
+console.log('[DEBUG] BEFORE HTTPX');
+
+console.log('[DEBUG] AFTER HTTPX');
+
 const httpxData =
   await runHttpx(target);
 
@@ -369,6 +373,10 @@ io.to(jobId).emit(
       "[+] Running WhatWeb fingerprinting...",
   }
 );
+
+console.log('[DEBUG] BEFORE WHATWEB');
+
+console.log('[DEBUG] AFTER WHATWEB');
 
 const {
   whatwebRaw,
@@ -429,8 +437,12 @@ try {
     }
   );
 
+  console.log('[DEBUG] BEFORE NUCLEI');
+
   vulnerabilities =
     await runNuclei(target);
+
+    console.log('[DEBUG] AFTER NUCLEI');
 
   console.log(
     "NUCLEI FINDINGS:",
@@ -438,8 +450,14 @@ try {
   );
 
   console.log(
+    '[DEBUG] BEFORE FINISHED_AT'
+  );
+
+  console.log(
     vulnerabilities.slice(0, 3)
   );
+
+  console.log('[DEBUG] BEFORE FINISHED_AT');
 
   io.to(jobId).emit(
     "vulnerabilities",
@@ -461,6 +479,7 @@ try {
     "NUCLEI ERROR:",
     error
   );
+  vulnerabilities = [];
 }
 
     // ======================================
@@ -482,15 +501,25 @@ try {
 // CALCULATE RISK SCORE
 // ======================================
 
+console.log(
+  '[DEBUG] BEFORE RISK SCORE'
+);
+
 const riskScore =
   calculateRiskScore(
     vulnerabilities
+  );
+
+  console.log(
+    '[DEBUG] AFTER RISK SCORE'
   );
 
 console.log(
   "RISK SCORE:",
   riskScore
 );
+
+console.log('[DEBUG] AFTER RISK SCORE');
 
     // ======================================
     // BUILD RESULTS
@@ -561,7 +590,16 @@ console.log(
     // SAVE RESULTS
     // ======================================
 
-    const scanJob = await ScanJob.findById(jobId);
+    console.log('LOOKING FOR JOB:', jobId);
+
+const totalJobs = await ScanJob.countDocuments();
+
+console.log('TOTAL JOBS:', totalJobs);
+
+const scanJob =
+  await ScanJob.findOne({
+    _id: jobId,
+  });
 
 if (!scanJob) {
   throw new Error('ScanJob not found');

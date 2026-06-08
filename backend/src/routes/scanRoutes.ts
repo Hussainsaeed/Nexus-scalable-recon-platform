@@ -58,7 +58,7 @@ router.post(
       // CREATE JOB
 
       console.log('REQ USER:', (req as any).user);
-console.log('USER ID:', (req as any).user?.Id);
+console.log('USER ID:', (req as any).user?.id);
 
       const scanJob =
   await ScanJob.create({

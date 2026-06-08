@@ -9,17 +9,62 @@ export const runNuclei = (
 
       const vulnerabilities: any[] = [];
 
+      console.log(
+        '[NUCLEI STARTING]',
+        target
+      );
+
+      console.log(
+        '[NUCLEI PROCESS CREATED]'
+      );
+
+      console.log(
+        "[NUCLEI CMD]",
+        [
+          "-u",
+          `https://${target}`,
+          "-jsonl",
+          "-tags",
+          "misconfig,exposure,cves",
+          "-severity",
+          "critical,high,medium",
+        ]
+      );
+
       const nuclei = spawn(
         "nuclei",
         [
           "-u",
           `https://${target}`,
-          "-silent",
+      
           "-jsonl",
+      
+          "-tags",
+          "misconfig,exposure,cves",
+      
+          "-severity",
+          "critical,high,medium",
+      
+          "-timeout",
+          "5",
+      
+          "-retries",
+          "1",
+      
           "-rl",
-          "50",
+          "100",
         ]
       );
+
+      const timeout = setTimeout(() => {
+
+        console.log(
+          '[NUCLEI TIMEOUT]'
+        );
+      
+        nuclei.kill();
+      
+      }, 1300000);
 
       nuclei.stdout.on(
         "data",
@@ -77,20 +122,33 @@ export const runNuclei = (
       );
 
       nuclei.stderr.on(
-        "data",
+        'data',
         (data) => {
-
-          console.error(
-            "NUCLEI STDERR:",
+      
+          console.log(
+            '[NUCLEI STDERR]',
             data.toString()
           );
+      
         }
       );
 
       nuclei.on(
         "close",
-        () => {
+        (code) => {
 
+          clearTimeout(timeout);
+      
+          console.log(
+            "[NUCLEI CLOSED]",
+            code
+          );
+      
+          console.log(
+            "[NUCLEI FINDINGS]",
+            vulnerabilities.length
+          );
+      
           resolve(
             vulnerabilities
           );
