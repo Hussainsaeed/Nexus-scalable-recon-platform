@@ -30,8 +30,6 @@ const scanResultSchema = new mongoose.Schema({
 
   technologies: [String],
 
-  fingerprints: [String],
-
   vulnerabilities: {
     type: Array,
     default: [],

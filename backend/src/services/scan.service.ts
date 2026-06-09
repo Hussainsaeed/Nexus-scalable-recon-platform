@@ -12,9 +12,7 @@ import { promisify } from "util";
 import ScanJob from "../models/ScanJob.model";
 import ScanResult from "../models/ScanResult";
 import { calculateRiskScore } from "./risk.service";
-import { runNuclei } from "./nuclei.service";
 import { runHttpx } from "./httpx.service";
-import { runWhatWeb } from "./whatweb.service";
 import { runDnsLookup } from "./dns.service";
 
 import { io } from "../server";
@@ -260,6 +258,21 @@ io.to(jobId).emit(
     // SSL SCAN
     // ======================================
 
+    io.to(jobId).emit(
+  'scan-stage',
+  {
+    stage: 'SSL Scan',
+  }
+);
+
+io.to(jobId).emit(
+  'scan-log',
+  {
+    message:
+      '[+] Running SSL Scan...',
+  }
+);
+
     let sslData: any = {};
 
     try {
@@ -350,42 +363,11 @@ io.to(jobId).emit(
 
 console.log('[DEBUG] BEFORE HTTPX');
 
-console.log('[DEBUG] AFTER HTTPX');
-
 const httpxData =
   await runHttpx(target);
 
-   // ======================================
-// WHATWEB
-// ======================================
-
-io.to(jobId).emit(
-  'scan-stage',
-  {
-    stage: 'WhatWeb',
-  }
-);
-
-io.to(jobId).emit(
-  "scan-log",
-  {
-    message:
-      "[+] Running WhatWeb fingerprinting...",
-  }
-);
-
-console.log('[DEBUG] BEFORE WHATWEB');
-
-console.log('[DEBUG] AFTER WHATWEB');
-
-const {
-  whatwebRaw,
-  fingerprints,
-} =
-  await runWhatWeb(
-    target
-  );
-
+console.log('[DEBUG] AFTER HTTPX');
+  
     // ======================================
     // EXTRACT HTTPX
     // ======================================
@@ -394,10 +376,25 @@ const {
       httpxData?.tech || [];
 
     const statusCode =
-      httpxData?.status_code || null;
+  httpxData?.status_code || null;
 
-    const title =
-      httpxData?.title || null;
+const title =
+  httpxData?.title || null;
+
+const hostIp =
+  httpxData?.host_ip || null;
+
+const webServer =
+  httpxData?.webserver || null;
+
+const contentLength =
+  httpxData?.content_length || null;
+
+const responseTime =
+  httpxData?.time || null;
+
+const url =
+  httpxData?.url || null;
 
       io.to(jobId).emit(
         "technologies",
@@ -415,72 +412,25 @@ const {
       );
 
 // ======================================
-// NUCLEI SCAN
+// DEEP SCAN DISABLED
 // ======================================
 
-let vulnerabilities: any[] = [];
+const vulnerabilities: any[] = [];
 
-try {
+io.to(jobId).emit(
+  "scan-log",
+  {
+    message:
+      "[+] Deep Scan disabled",
+  }
+);
 
-  io.to(jobId).emit(
-    'scan-stage',
-    {
-      stage: 'Nuclei',
-    }
-  );
-
-  io.to(jobId).emit(
-    "scan-log",
-    {
-      message:
-        "[+] Running Nuclei vulnerability scan...",
-    }
-  );
-
-  console.log('[DEBUG] BEFORE NUCLEI');
-
-  vulnerabilities =
-    await runNuclei(target);
-
-    console.log('[DEBUG] AFTER NUCLEI');
-
-  console.log(
-    "NUCLEI FINDINGS:",
-    vulnerabilities.length
-  );
-
-  console.log(
-    '[DEBUG] BEFORE FINISHED_AT'
-  );
-
-  console.log(
-    vulnerabilities.slice(0, 3)
-  );
-
-  console.log('[DEBUG] BEFORE FINISHED_AT');
-
-  io.to(jobId).emit(
-    "vulnerabilities",
-    {
-      target,
-      vulnerabilities,
-    }
-  );
-  
-  io.to(jobId).emit(
-    'scan-progress',
-    {
-      progress: 90,
-    }
-  );
-} catch (error) {
-
-  console.error(
-    "NUCLEI ERROR:",
-    error
-  );
-  vulnerabilities = [];
-}
+io.to(jobId).emit(
+  "scan-progress",
+  {
+    progress: 90,
+  }
+);
 
     // ======================================
     // CALCULATE DURATION
@@ -501,12 +451,26 @@ try {
 // CALCULATE RISK SCORE
 // ======================================
 
+console.log("OPEN PORTS:", openPorts);
+
+console.log("TECHNOLOGIES:", technologies);
+
+console.log("SSL DATA:", sslData);
+
+console.log(
+  "VULNERABILITIES:",
+  vulnerabilities.length
+);
+
 console.log(
   '[DEBUG] BEFORE RISK SCORE'
 );
 
 const riskScore =
   calculateRiskScore(
+    openPorts,
+    technologies,
+    sslData,
     vulnerabilities
   );
 
@@ -543,13 +507,19 @@ console.log('[DEBUG] AFTER RISK SCORE');
 
       technologies,
 
-      fingerprints,
-
-      whatwebRaw,
-
       statusCode,
 
       title,
+
+        hostIp,
+
+        webServer,
+
+        contentLength,
+
+        responseTime,
+
+        url,
 
       vulnerabilities,
 
@@ -618,8 +588,6 @@ if (!scanJob) {
       openServices,
 
       technologies,
-
-      fingerprints,
 
       vulnerabilities,
 

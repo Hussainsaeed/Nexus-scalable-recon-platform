@@ -22,7 +22,6 @@ interface Vulnerability {
 
 interface ScanResult {
   technologies?: string[];
-  fingerprints?: string[];
   vulnerabilities?: Vulnerability[];
 }
 
@@ -377,10 +376,6 @@ return () => {
                 </th>
 
                 <th className="p-4">
-                  Fingerprints
-                </th>
-
-                <th className="p-4">
                   Vulnerabilities
                 </th>
 
@@ -445,29 +440,6 @@ return () => {
                             className="bg-zinc-800 px-2 py-1 rounded text-xs border border-zinc-700"
                           >
                             {tech}
-                          </span>
-
-                        ))}
-
-                    </div>
-
-                  </td>
-
-                  {/* FINGERPRINTS */}
-
-                  <td className="p-4">
-
-                    <div className="flex flex-wrap gap-2">
-
-                      {(job.results?.fingerprints || [])
-                        .slice(0, 4)
-                        .map((fp) => (
-
-                          <span
-                            key={fp}
-                            className="bg-emerald-900/40 text-emerald-300 px-2 py-1 rounded text-xs border border-emerald-700/40"
-                          >
-                            {fp}
                           </span>
 
                         ))}

@@ -13,7 +13,7 @@ export const runHttpx = async (
 
     const { stdout } =
       await execAsync(
-        `echo ${target} | httpx -title -tech-detect -status-code -json -silent`,
+        `echo ${target} | httpx -title -tech-detect -status-code -web-server -ip -cdn -content-length -json -silent`,
         {
           timeout: 15000,
           maxBuffer:
@@ -32,6 +32,11 @@ export const runHttpx = async (
         JSON.parse(
           lines[0]
         );
+
+        console.log(
+  "HTTPX DATA:",
+  httpxData
+);
     }
 
   } catch (error) {

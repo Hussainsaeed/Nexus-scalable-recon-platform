@@ -40,13 +40,23 @@ interface ScanData {
 
   technologies?: string[];
 
-  fingerprints?: string[];
-
   vulnerabilities?: Vulnerability[];
 
   headers?: Record<string, string>;
 
   ssl?: any;
+
+  hostIp?: string;
+
+  webServer?: string;
+
+  statusCode?: number;
+
+  contentLength?: number;
+
+  responseTime?: string;
+
+  url?: string;
 }
 
 export default function ScanDetailsPage() {
@@ -93,13 +103,12 @@ const [stage, setStage] =
   useState('Waiting...');
 
   const stages = [
-    'DNS Lookup',
-    'Port Scan',
-    'HTTPX',
-    'WhatWeb',
-    'Nuclei',
-    'Completed',
-  ];
+  'DNS Lookup',
+  'Port Scan',
+  'HTTPX',
+  'SSL Scan',
+  'Completed',
+];
 
   useEffect(() => {
 
@@ -116,6 +125,11 @@ const [stage, setStage] =
           await response.json();
         
         const job = data.job;
+
+        console.log(
+  'JOB RESULTS:',
+  job.results
+);
         
         setScan({
           target: job.target,
@@ -125,14 +139,19 @@ const [stage, setStage] =
             job.results?.riskScore || 0,
           technologies:
             job.results?.technologies || [],
-          fingerprints:
-            job.results?.fingerprints || [],
           vulnerabilities:
             job.results?.vulnerabilities || [],
           headers:
             job.results?.headers || {},
           ssl:
             job.results?.ssl || {},
+
+            hostIp: job.results?.hostIp || '',
+  webServer: job.results?.webServer || '',
+  statusCode: job.results?.statusCode || 0,
+  contentLength: job.results?.contentLength || 0,
+  responseTime: job.results?.responseTime || '',
+  url: job.results?.url || '',
         });
 
       } catch (error) {
@@ -217,6 +236,25 @@ socket.emit(
         return 'bg-zinc-600';
     }
   };
+
+  const getStatusColor = (
+  code?: number
+) => {
+
+  if (!code)
+    return "text-zinc-400";
+
+  if (code >= 200 && code < 300)
+    return "text-emerald-400";
+
+  if (code >= 300 && code < 400)
+    return "text-yellow-400";
+
+  if (code >= 400)
+    return "text-red-400";
+
+  return "text-zinc-400";
+};
 
   const calculateRisk = () => {
 
@@ -548,6 +586,73 @@ socket.emit(
 
       <section className="mb-10">
 
+          <h2 className="text-2xl font-bold mb-4">
+          HTTPX Information
+  </h2>
+
+  <div className="grid md:grid-cols-3 gap-4">
+
+    <div className="bg-zinc-900 rounded-2xl p-5">
+      <p className="text-zinc-500 text-sm">
+        URL
+      </p>
+      <p className="text-emerald-400 break-all">
+        {scan.url}
+      </p>
+    </div>
+
+    <div className="bg-zinc-900 rounded-2xl p-5">
+      <p className="text-zinc-500 text-sm">
+        Host IP
+      </p>
+      <p>
+        {scan.hostIp}
+      </p>
+    </div>
+
+    <div className="bg-zinc-900 rounded-2xl p-5">
+      <p className="text-zinc-500 text-sm">
+        Web Server
+      </p>
+      <p>
+        {scan.webServer}
+      </p>
+    </div>
+
+    <div className="bg-zinc-900 rounded-2xl p-5">
+  <p className="text-zinc-500 text-sm">
+    Status Code
+  </p>
+
+  <p
+    className={`font-semibold ${getStatusColor(
+      scan.statusCode
+    )}`}
+  >
+    {scan.statusCode}
+  </p>
+</div>
+
+    <div className="bg-zinc-900 rounded-2xl p-5">
+      <p className="text-zinc-500 text-sm">
+        Response Time
+      </p>
+      <p>
+        {scan.responseTime}
+      </p>
+    </div>
+
+    <div className="bg-zinc-900 rounded-2xl p-5">
+      <p className="text-zinc-500 text-sm">
+        Content Length
+      </p>
+      <p>
+        {scan.contentLength}
+      </p>
+    </div>
+
+  </div>
+
         <h2 className="text-2xl font-bold mb-4">
           Open Ports
         </h2>
@@ -586,31 +691,6 @@ socket.emit(
               className="bg-blue-900 px-4 py-2 rounded-xl"
             >
               {tech}
-            </div>
-
-          ))}
-
-        </div>
-
-      </section>
-
-      {/* Fingerprints */}
-
-      <section className="mb-10">
-
-        <h2 className="text-2xl font-bold mb-4">
-          Fingerprints
-        </h2>
-
-        <div className="flex gap-3 flex-wrap">
-
-          {scan.fingerprints?.map((fp) => (
-
-            <div
-              key={fp}
-              className="bg-purple-900 px-4 py-2 rounded-xl"
-            >
-              {fp}
             </div>
 
           ))}

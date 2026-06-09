@@ -45,8 +45,6 @@ export type ApiResponse = {
 
   technologies?: string[];
 
-  fingerprints?: string[];
-
   openPorts?: number[];
 
   headers?: Record<string, any>;
