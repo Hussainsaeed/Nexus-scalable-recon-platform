@@ -1,6 +1,7 @@
 import net from "net";
 import https from "https";
 import tls from "tls";
+import { getAsnInfo } from '../utils/asnLookup';
 
 import {
   exec,
@@ -14,8 +15,16 @@ import ScanResult from "../models/ScanResult";
 import { calculateRiskScore } from "./risk.service";
 import { runHttpx } from "./httpx.service";
 import { runDnsLookup } from "./dns.service";
+import {
+  analyzeSecurityHeaders,
+} from "./securityHeaders.service";
+import { runSubfinder }
+  from "./subfinder.service";
 
 import { io } from "../server";
+import {
+  getGeoIpInfo,
+} from "./geoip.service";
 
 const execAsync = promisify(exec);
 
@@ -124,6 +133,14 @@ export const runScanJob = async (
 const {
   ipv4,
   ipv6,
+  mx,
+  txt,
+  ns,
+  cname,
+  spf,
+  dmarc,
+  dmarcPolicy,
+  dkim,
 } =
   await runDnsLookup(
     target
@@ -149,6 +166,32 @@ io.to(jobId).emit(
     stage: 'DNS Lookup',
   }
 );
+
+console.log("DNS IPv4:", ipv4);
+console.log("DNS IPv6:", ipv6);
+console.log("DNS MX:", mx);
+console.log("DNS TXT:", txt);
+console.log("DNS NS:", ns);
+console.log("DNS CNAME:", cname);
+console.log(
+  "SPF DETECTED:",
+  spf
+);
+console.log(
+  "DMARC DETECTED:",
+  dmarc
+);
+
+console.log(
+  "DMARC POLICY:",
+  dmarcPolicy
+);
+
+console.log(
+  "DKIM DETECTED:",
+  dkim
+);
+
 
   // ======================================
     // PORT SCAN
@@ -366,14 +409,437 @@ console.log('[DEBUG] BEFORE HTTPX');
 const httpxData =
   await runHttpx(target);
 
+  const subdomains =
+  await runSubfinder(target);
+
+console.log(
+  "SUBDOMAINS FOUND:",
+  subdomains.length
+);
+
 console.log('[DEBUG] AFTER HTTPX');
+
+const headerFindings =
+  analyzeSecurityHeaders(
+    headersData
+  );
+
+console.log(
+  "HEADER FINDINGS:",
+  headerFindings
+);
+
+const hasLaravelHeaders =
+
+  Object.entries(
+    headersData || {}
+  ).some(
+    ([key, value]) =>
+
+      String(key)
+        .toLowerCase()
+        .includes(
+          "x-powered-by"
+        ) &&
+
+      String(value)
+        .toLowerCase()
+        .includes(
+          "laravel"
+        )
+  );
+
+  const cookies =
+
+  Array.isArray(
+    headersData?.["set-cookie"]
+  )
+
+    ? headersData["set-cookie"]
+        .join(" ")
+
+    : String(
+        headersData?.["set-cookie"] || ""
+      );
+
+const hasLaravelCookies =
+
+  cookies
+    .toLowerCase()
+    .includes(
+      "laravel_session"
+    )
+
+  ||
+
+  cookies
+    .toLowerCase()
+    .includes(
+      "xsrf-token"
+    );
   
     // ======================================
     // EXTRACT HTTPX
     // ======================================
 
+    const technologyCategories: Record<
+  string,
+  string
+> = {
+
+  "Next.js":
+    "Frontend Framework",
+
+  "React":
+    "JavaScript Library",
+
+  "Node.js":
+    "Runtime Environment",
+
+  "Nginx:1.30.2":
+    "Web Server",
+
+  "Webpack":
+    "Module Bundler",
+
+  "WordPress":
+    "CMS",
+
+  "Laravel":
+    "PHP Framework",
+
+  "PHP":
+    "Programming Language",
+
+  "jQuery":
+    "JavaScript Library",
+
+  "Bootstrap":
+    "CSS Framework",
+
+  "Cloudflare":
+    "CDN",
+
+  "Google Analytics":
+    "Analytics Platform",
+
+    "Google Font API":
+  "Font Service",
+
+"Google Hosted Libraries":
+  "CDN Library",
+
+"HSTS":
+  "Security Policy",
+
+"HTTP/3":
+  "Network Protocol",
+
+"OneTrust":
+  "Privacy Platform",
+
+"hCaptcha":
+  "Captcha Service",
+
+"jQuery:3.5.1":
+  "JavaScript Library",
+
+  "Cloudflare Bot Management":
+  "Security Service",
+
+"Fathom":
+  "Analytics Platform",
+
+};
+
     const technologies =
-      httpxData?.tech || [];
+  (httpxData?.tech || []).map(
+    (tech: string) => ({
+
+      name: tech,
+
+      category:
+
+  tech.toLowerCase()
+    .includes("wordpress")
+
+    ? "CMS"
+
+  : tech.toLowerCase()
+    .includes("woocommerce")
+
+    ? "E-Commerce Platform"
+
+  : tech.toLowerCase()
+    .includes("yoast")
+
+    ? "SEO Plugin"
+
+  : tech.toLowerCase()
+    .includes("mysql")
+
+    ? "Database"
+
+  : tech.toLowerCase()
+    .includes("google tag manager")
+
+    ? "Analytics Platform"
+
+    : tech.toLowerCase()
+    .includes("nginx")
+
+    ? "Web Server"
+
+  : technologyCategories[
+      tech
+    ] || "Unknown",
+
+      confidence:
+
+  tech.toLowerCase().includes("wordpress")
+    ? "very-high"
+
+  : tech.toLowerCase().includes("woocommerce")
+    ? "very-high"
+
+  : tech.toLowerCase().includes("laravel")
+    ? "very-high"
+
+  : tech.toLowerCase().includes("cloudflare")
+    ? "very-high"
+
+  : tech.toLowerCase().includes("php")
+    ? "high"
+
+  : tech.toLowerCase().includes("mysql")
+    ? "high"
+
+  : "medium",
+
+    })
+  );
+
+  const rawTechnologies =
+  httpxData?.tech || [];
+
+  const isLaravel =
+  rawTechnologies.some(
+    (t: string) =>
+      t.toLowerCase().includes(
+        "laravel"
+      )
+  );
+
+  if (
+  isLaravel &&
+  !technologies.some(
+    (t: any) =>
+      t.name === "Laravel"
+  )
+) {
+
+  technologies.push({
+    name: "Laravel",
+    category:
+      "PHP Framework",
+    confidence:
+      "high",
+  });
+
+}
+
+  const serverHeader =
+  httpxData?.webserver
+    ?.toLowerCase() || "";
+
+if (
+  rawTechnologies.some(
+    (t: string) =>
+      t.toLowerCase().includes(
+        "cloudflare"
+      )
+  )
+) {
+
+  console.log(
+    "CLOUDFLARE DETECTED"
+  );
+
+}
+
+if (isLaravel) {
+
+  console.log(
+    "LARAVEL DETECTED"
+  );
+
+}
+
+if (
+  hasLaravelHeaders
+) {
+
+  console.log(
+    "LARAVEL HEADER DETECTED"
+  );
+
+}
+
+if (
+  hasLaravelCookies
+) {
+
+  console.log(
+    "LARAVEL COOKIE DETECTED"
+  );
+
+}
+
+const hasWordPress =
+  technologies.some(
+    (t: any) =>
+      t.name
+        .toLowerCase()
+        .includes(
+          "wordpress"
+        )
+  );
+
+if (hasWordPress) {
+
+  console.log(
+    "WORDPRESS DETECTED"
+  );
+
+}
+
+      console.log(
+  "RAW TECHNOLOGIES:",
+  technologies
+);
+
+const uniqueTechnologies =
+  technologies.filter(
+    (
+      tech: any,
+      index: number,
+      self: any[]
+    ) => {
+
+      const normalizedName =
+
+        tech.name
+          .toLowerCase()
+
+          .includes("wordpress")
+
+          ? "wordpress"
+
+        : tech.name
+          .toLowerCase()
+          .includes("woocommerce")
+
+          ? "woocommerce"
+
+        : tech.name
+          .toLowerCase()
+          .includes("yoast")
+
+          ? "yoast"
+
+        : tech.name
+          .toLowerCase()
+          .includes("nginx")
+
+          ? "nginx"
+
+        : tech.name
+          .toLowerCase()
+          .includes("jquery")
+
+          ? "jquery"
+
+        : tech.name
+          .toLowerCase()
+          .includes("php")
+
+          ? "php"
+
+        : tech.name
+          .toLowerCase()
+          .includes("mysql")
+
+          ? "mysql"
+
+        : tech.name;
+
+      return (
+        index ===
+        self.findIndex(
+          (t: any) => {
+
+            const compareName =
+
+              t.name
+                .toLowerCase()
+                .includes("wordpress")
+
+                ? "wordpress"
+
+              : t.name
+                .toLowerCase()
+                .includes("woocommerce")
+
+                ? "woocommerce"
+
+              : t.name
+                .toLowerCase()
+                .includes("yoast")
+
+                ? "yoast"
+
+              : t.name
+                .toLowerCase()
+                .includes("nginx")
+
+                ? "nginx"
+
+              : t.name
+                .toLowerCase()
+                .includes("jquery")
+
+                ? "jquery"
+
+              : t.name
+                .toLowerCase()
+                .includes("php")
+
+                ? "php"
+
+              : t.name
+                .toLowerCase()
+                .includes("mysql")
+
+                ? "mysql"
+
+              : t.name;
+
+            return (
+              compareName ===
+              normalizedName
+            );
+
+          }
+        )
+      );
+
+    }
+  );
+
+console.log(
+  "FINAL TECHNOLOGIES:",
+  uniqueTechnologies
+);
 
     const statusCode =
   httpxData?.status_code || null;
@@ -384,8 +850,101 @@ const title =
 const hostIp =
   httpxData?.host_ip || null;
 
+  const geoInfo =
+  getGeoIpInfo(hostIp);
+
+  const asnInfo =
+  await getAsnInfo(hostIp);
+
+console.log(
+  'ASN INFO:',
+  asnInfo
+);
+
+console.log(
+  "GEO INFO:",
+  geoInfo
+);
+
+  const cdnName =
+  httpxData?.cdn_name || null;
+
+const cdnType =
+  httpxData?.cdn_type || null;
+
+console.log(
+  "CDN NAME:",
+  cdnName
+);
+
+console.log(
+  "CDN TYPE:",
+  cdnType
+);
+
+  console.log(
+  "HOST IP:",
+  hostIp
+);
+
 const webServer =
   httpxData?.webserver || null;
+
+  let hostingType =
+  "Unknown";
+
+  let operatingSystem =
+  "Unknown";
+
+if (
+  webServer?.toLowerCase()
+    .includes("nginx")
+) {
+  operatingSystem =
+    "Linux";
+}
+
+if (
+  webServer?.toLowerCase()
+    .includes("apache")
+) {
+  operatingSystem =
+    "Linux";
+}
+
+console.log(
+  "OPERATING SYSTEM:",
+  operatingSystem
+);
+
+if (
+  webServer?.toLowerCase()
+    .includes("nginx")
+) {
+  hostingType =
+    "Linux / Nginx";
+}
+
+if (
+  webServer?.toLowerCase()
+    .includes("apache")
+) {
+  hostingType =
+    "Linux / Apache";
+}
+
+console.log(
+  "HOSTING TYPE:",
+  hostingType
+);
+
+  const cdn =
+  httpxData?.cdn || null;
+
+console.log(
+  "CDN DETECTED:",
+  cdn
+);
 
 const contentLength =
   httpxData?.content_length || null;
@@ -397,12 +956,13 @@ const url =
   httpxData?.url || null;
 
       io.to(jobId).emit(
-        "technologies",
-        {
-          target,
-          technologies,
-        }
-      );
+  "technologies",
+  {
+    target,
+    technologies:
+      uniqueTechnologies,
+  }
+);
       
       io.to(jobId).emit(
         'scan-progress',
@@ -415,7 +975,9 @@ const url =
 // DEEP SCAN DISABLED
 // ======================================
 
-const vulnerabilities: any[] = [];
+const vulnerabilities: any[] = [
+  ...headerFindings,
+];
 
 io.to(jobId).emit(
   "scan-log",
@@ -485,6 +1047,25 @@ console.log(
 
 console.log('[DEBUG] AFTER RISK SCORE');
 
+let emailSecurityScore = 0;
+
+if (spf) {
+  emailSecurityScore += 30;
+}
+
+if (dmarc) {
+  emailSecurityScore += 40;
+}
+
+if (dkim) {
+  emailSecurityScore += 30;
+}
+
+console.log(
+  "EMAIL SECURITY SCORE:",
+  emailSecurityScore
+);
+
     // ======================================
     // BUILD RESULTS
     // ======================================
@@ -497,7 +1078,31 @@ console.log('[DEBUG] AFTER RISK SCORE');
 
       ipv6,
 
+      mx,
+
+      txt,
+
+      ns,
+
+      cname,
+
+      spf,
+
+      dmarc,
+
+      dmarcPolicy,
+
+      dkim,
+
+      emailSecurityScore,
+
+      hostingType,
+
+      operatingSystem,
+
       openPorts,
+
+      cdn,
 
       headers:
         headersData,
@@ -505,13 +1110,17 @@ console.log('[DEBUG] AFTER RISK SCORE');
       ssl:
         sslData,
 
-      technologies,
+      technologies: uniqueTechnologies,
 
       statusCode,
 
       title,
 
         hostIp,
+
+        cdnName,
+
+        cdnType,
 
         webServer,
 
@@ -524,6 +1133,33 @@ console.log('[DEBUG] AFTER RISK SCORE');
       vulnerabilities,
 
       riskScore,
+
+      subdomains,
+
+        country:
+    geoInfo.country,
+
+  region:
+    geoInfo.region,
+
+  city:
+    geoInfo.city,
+
+  timezone:
+    geoInfo.timezone,
+
+    isp:
+  asnInfo.isp,
+
+organization:
+  asnInfo.organization,
+
+asn:
+  asnInfo.asn,
+
+asnCountry:
+  asnInfo.country,
+
     };
 
     // ======================================
@@ -587,7 +1223,7 @@ if (!scanJob) {
 
       openServices,
 
-      technologies,
+      technologies: uniqueTechnologies,
 
       vulnerabilities,
 
@@ -598,6 +1234,9 @@ if (!scanJob) {
       startedAt,
 
       finishedAt,
+
+      subdomains,
+
     });
 
     // ======================================

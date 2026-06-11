@@ -17,7 +17,9 @@ import {
 
 interface Vulnerability {
 
-  name: string;
+  name?: string;
+
+  title?: string;
 
   severity: string;
 
@@ -38,7 +40,10 @@ interface ScanData {
 
   riskScore?: number;
 
-  technologies?: string[];
+  technologies?: {
+  name: string;
+  category: string;
+}[];
 
   vulnerabilities?: Vulnerability[];
 
@@ -46,7 +51,13 @@ interface ScanData {
 
   ssl?: any;
 
+  title?: string;
+
   hostIp?: string;
+
+  hostingType?: string;
+
+  operatingSystem?: string;
 
   webServer?: string;
 
@@ -57,6 +68,52 @@ interface ScanData {
   responseTime?: string;
 
   url?: string;
+
+  cdnName?: string;
+
+  cdnType?: string;
+
+  subdomains?: string[];
+
+  ipv4?: string[];
+
+  ipv6?: string[];
+
+
+  mx?: any[];
+
+txt?: string[][];
+
+ns?: string[];
+
+cname?: string[];
+
+spf?: boolean;
+
+dmarc?: boolean;
+
+dmarcPolicy?: string | null;
+
+dkim?: boolean;
+
+emailSecurityScore?: number;
+
+country?: string;
+
+region?: string;
+
+city?: string;
+
+timezone?: string;
+
+isp?: string;
+
+organization?: string;
+
+asn?: string;
+
+asnCountry?: string;
+
 }
 
 export default function ScanDetailsPage() {
@@ -107,6 +164,9 @@ const [stage, setStage] =
   'Port Scan',
   'HTTPX',
   'SSL Scan',
+  'Subdomain Enumeration',
+  'Email Security',
+  'GeoIP Intelligence',
   'Completed',
 ];
 
@@ -147,11 +207,69 @@ const [stage, setStage] =
             job.results?.ssl || {},
 
             hostIp: job.results?.hostIp || '',
+            cdnName: job.results?.cdnName || '',
+            cdnType: job.results?.cdnType || '',
   webServer: job.results?.webServer || '',
+  hostingType:
+  job.results?.hostingType || '',
+
+operatingSystem:
+  job.results?.operatingSystem || '',
   statusCode: job.results?.statusCode || 0,
   contentLength: job.results?.contentLength || 0,
   responseTime: job.results?.responseTime || '',
   url: job.results?.url || '',
+  title:
+  job.results?.title || '',
+
+  subdomains:
+  job.results?.subdomains || [],
+
+  ipv4:
+  job.results?.ipv4 || [],
+
+ipv6:
+  job.results?.ipv6 || [],
+
+  mx:
+  job.results?.mx || [],
+
+txt:
+  job.results?.txt || [],
+
+ns:
+  job.results?.ns || [],
+
+cname:
+  job.results?.cname || [],
+
+  spf:
+  job.results?.spf || false,
+
+dmarc:
+  job.results?.dmarc || false,
+
+dmarcPolicy:
+  job.results?.dmarcPolicy || null,
+
+dkim:
+  job.results?.dkim || false,
+
+emailSecurityScore:
+  job.results?.emailSecurityScore || 0,
+
+  country:
+  job.results?.country || '',
+
+region:
+  job.results?.region || '',
+
+city:
+  job.results?.city || '',
+
+timezone:
+  job.results?.timezone || '',
+
         });
 
       } catch (error) {
@@ -611,6 +729,26 @@ socket.emit(
     </div>
 
     <div className="bg-zinc-900 rounded-2xl p-5">
+  <p className="text-zinc-500 text-sm">
+    CDN Name
+  </p>
+
+  <p>
+    {scan.cdnName}
+  </p>
+</div>
+
+<div className="bg-zinc-900 rounded-2xl p-5">
+  <p className="text-zinc-500 text-sm">
+    CDN Type
+  </p>
+
+  <p>
+    {scan.cdnType}
+  </p>
+</div>
+
+    <div className="bg-zinc-900 rounded-2xl p-5">
       <p className="text-zinc-500 text-sm">
         Web Server
       </p>
@@ -651,6 +789,36 @@ socket.emit(
       </p>
     </div>
 
+    <div className="bg-zinc-900 rounded-2xl p-5">
+  <p className="text-zinc-500 text-sm">
+    Operating System
+  </p>
+
+  <p>
+    {scan.operatingSystem}
+  </p>
+</div>
+
+<div className="bg-zinc-900 rounded-2xl p-5">
+  <p className="text-zinc-500 text-sm">
+    Hosting Type
+  </p>
+
+  <p>
+    {scan.hostingType}
+  </p>
+</div>
+
+<div className="bg-zinc-900 rounded-2xl p-5 md:col-span-2">
+  <p className="text-zinc-500 text-sm">
+    Page Title
+  </p>
+
+  <p>
+    {scan.title}
+  </p>
+</div>
+
   </div>
 
         <h2 className="text-2xl font-bold mb-4">
@@ -674,6 +842,289 @@ socket.emit(
 
       </section>
 
+      <section className="mb-10">
+
+  <h2 className="text-2xl font-bold mb-4">
+    Subdomains
+  </h2>
+
+  <div className="grid md:grid-cols-2 gap-3">
+
+    {scan.subdomains?.length ? (
+
+      scan.subdomains.map(
+        (
+          sub,
+          index
+        ) => (
+
+          <div
+            key={index}
+            className="
+              bg-zinc-900
+              border
+              border-cyan-500/20
+              rounded-xl
+              px-4
+              py-3
+              break-all
+            "
+          >
+            {sub}
+          </div>
+
+        )
+      )
+
+    ) : (
+
+      <div className="text-zinc-500">
+        No subdomains found
+      </div>
+
+    )}
+
+  </div>
+
+</section>
+
+{/* DNS Recon */}
+
+<section className="mb-10">
+
+  <h2 className="text-2xl font-bold mb-4">
+    DNS Recon
+  </h2>
+
+  <div className="space-y-6">
+
+    <div>
+      <h3 className="font-semibold mb-2">
+        A Records
+      </h3>
+
+      {scan?.ipv4?.map((ip) => (
+        <div
+          key={ip}
+          className="bg-zinc-900 p-2 rounded"
+        >
+          {ip}
+        </div>
+      ))}
+    </div>
+
+    <div>
+      <h3 className="font-semibold mb-2">
+        AAAA Records
+      </h3>
+
+      {scan?.ipv6?.map((ip) => (
+        <div
+          key={ip}
+          className="bg-zinc-900 p-2 rounded"
+        >
+          {ip}
+        </div>
+      ))}
+    </div>
+
+    <div>
+      <h3 className="font-semibold mb-2">
+        MX Records
+      </h3>
+
+      {scan?.mx?.map((record, index) => (
+        <div
+          key={index}
+          className="bg-zinc-900 p-2 rounded"
+        >
+          {record.exchange}
+          {" "}
+          (Priority: {record.priority})
+        </div>
+      ))}
+    </div>
+
+    <div>
+      <h3 className="font-semibold mb-2">
+        NS Records
+      </h3>
+
+      {scan?.ns?.map((record) => (
+        <div
+          key={record}
+          className="bg-zinc-900 p-2 rounded"
+        >
+          {record}
+        </div>
+      ))}
+    </div>
+
+    <div>
+      <h3 className="font-semibold mb-2">
+        TXT Records
+      </h3>
+
+      {scan?.txt?.map((record, index) => (
+        <div
+          key={index}
+          className="bg-zinc-900 p-2 rounded break-all"
+        >
+          {record.join(" ")}
+        </div>
+      ))}
+    </div>
+
+    <div>
+      <h3 className="font-semibold mb-2">
+        CNAME Records
+      </h3>
+
+      {scan?.cname?.map((record) => (
+        <div
+          key={record}
+          className="bg-zinc-900 p-2 rounded"
+        >
+          {record}
+        </div>
+      ))}
+    </div>
+
+  </div>
+
+</section>
+
+{/* Email Security */}
+
+<div className="mt-8">
+
+  <h2 className="text-xl font-bold mb-4">
+    Email Security
+  </h2>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div className="bg-zinc-900 p-4 rounded-lg">
+
+      <p>
+        SPF:
+        {" "}
+        {scan?.spf
+          ? "Enabled ✅"
+          : "Missing ❌"}
+      </p>
+
+      <p>
+        DMARC:
+        {" "}
+        {scan?.dmarc
+          ? "Enabled ✅"
+          : "Missing ❌"}
+      </p>
+
+      <p>
+        DKIM:
+        {" "}
+        {scan?.dkim
+          ? "Enabled ✅"
+          : "Missing ❌"}
+      </p>
+
+      {scan?.dmarcPolicy && (
+        <p>
+          Policy:
+          {" "}
+          {scan.dmarcPolicy}
+        </p>
+      )}
+
+    </div>
+
+    <div className="bg-zinc-900 p-4 rounded-lg">
+
+      <h3 className="font-semibold mb-2">
+        Email Security Score
+      </h3>
+
+      <div className="text-3xl font-bold text-emerald-400">
+        {scan?.emailSecurityScore || 0}
+        /100
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{/* GeoIP Intelligence */}
+
+<div className="mt-8">
+
+  <h2 className="text-xl font-bold mb-4">
+    GeoIP Intelligence
+  </h2>
+
+  <div className="bg-zinc-900 p-4 rounded-lg">
+
+    <p>
+      Country: {scan?.country || "Unknown"}
+    </p>
+
+    <p>
+      Region: {scan?.region || "Unknown"}
+    </p>
+
+    <p>
+      City: {scan?.city || "Unknown"}
+    </p>
+
+    <p>
+      Timezone: {scan?.timezone || "Unknown"}
+    </p>
+
+  </div>
+
+</div>
+
+{/* ASN Intelligence */}
+
+<div className="mt-8">
+
+  <h2 className="text-xl font-bold mb-4">
+    ASN Intelligence
+  </h2>
+
+  <div className="bg-zinc-900 p-4 rounded-lg">
+
+    <p>
+      ISP:
+      {" "}
+      {scan?.isp || "Unknown"}
+    </p>
+
+    <p>
+      Organization:
+      {" "}
+      {scan?.organization || "Unknown"}
+    </p>
+
+    <p>
+      ASN:
+      {" "}
+      {scan?.asn || "Unknown"}
+    </p>
+
+    <p>
+      ASN Country:
+      {" "}
+      {scan?.asnCountry || "Unknown"}
+    </p>
+
+  </div>
+
+</div>
+
       {/* Technologies */}
 
       <section className="mb-10">
@@ -684,16 +1135,35 @@ socket.emit(
 
         <div className="flex gap-3 flex-wrap">
 
-          {scan.technologies?.map((tech) => (
+          {scan.technologies?.map((tech: any) => (
 
-            <div
-              key={tech}
-              className="bg-blue-900 px-4 py-2 rounded-xl"
-            >
-              {tech}
-            </div>
+  <div
+    key={tech.name}
+    className="
+      bg-blue-900
+      px-3
+      py-2
+      rounded-xl
+      text-sm
+    "
+  >
 
-          ))}
+    <div>
+      {tech.name}
+    </div>
+
+    <div
+      className="
+        text-xs
+        text-zinc-400
+      "
+    >
+      {tech.category}
+    </div>
+
+  </div>
+
+))}
 
         </div>
 
@@ -720,8 +1190,8 @@ socket.emit(
                 <div className="flex items-center justify-between mb-4">
 
                   <h3 className="text-xl font-bold">
-                    {vuln.name}
-                  </h3>
+                    {vuln.name || vuln.title}
+                    </h3>
 
                   <span
                     className={`px-3 py-1 rounded-xl text-sm font-bold ${getSeverityColor(

@@ -28,7 +28,12 @@ const scanResultSchema = new mongoose.Schema({
 
   openServices: [String],
 
-  technologies: [String],
+  technologies: [
+  {
+    name: String,
+    category: String,
+  },
+],
 
   vulnerabilities: {
     type: Array,

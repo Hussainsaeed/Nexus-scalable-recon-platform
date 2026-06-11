@@ -20,8 +20,13 @@ interface Vulnerability {
   severity: string;
 }
 
+interface Technology {
+  name: string;
+  category: string;
+}
+
 interface ScanResult {
-  technologies?: string[];
+  technologies?: Technology[];
   vulnerabilities?: Vulnerability[];
 }
 
@@ -427,26 +432,22 @@ return () => {
 
                   {/* TECHNOLOGIES */}
 
-                  <td className="p-4">
+                  <div className="flex flex-wrap gap-2">
 
-                    <div className="flex flex-wrap gap-2">
+  {(job.results?.technologies || [])
+    .slice(0, 4)
+    .map((tech) => (
 
-                      {(job.results?.technologies || [])
-                        .slice(0, 4)
-                        .map((tech) => (
+      <span
+        key={tech.name}
+        className="bg-zinc-800 px-2 py-1 rounded text-xs border border-zinc-700"
+      >
+        {tech.name}
+      </span>
 
-                          <span
-                            key={tech}
-                            className="bg-zinc-800 px-2 py-1 rounded text-xs border border-zinc-700"
-                          >
-                            {tech}
-                          </span>
+    ))}
 
-                        ))}
-
-                    </div>
-
-                  </td>
+</div>
 
                   {/* VULNERABILITIES */}
 

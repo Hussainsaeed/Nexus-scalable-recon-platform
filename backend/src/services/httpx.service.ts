@@ -13,7 +13,7 @@ export const runHttpx = async (
 
     const { stdout } =
       await execAsync(
-        `echo ${target} | httpx -title -tech-detect -status-code -web-server -ip -cdn -content-length -json -silent`,
+          `echo ${target} | httpx -title -tech-detect -status-code -web-server -ip -cdn -content-length -follow-redirects -json -silent`,
         {
           timeout: 15000,
           maxBuffer:

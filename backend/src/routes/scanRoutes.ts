@@ -353,18 +353,275 @@ router.get(
       doc.moveDown();
 
       doc
+  .fontSize(18)
+  .text("HTTPX Information");
+
+doc.moveDown();
+
+doc.text(
+  `URL: ${results.url || 'Unknown'}`
+);
+
+doc.text(
+  `Host IP: ${results.hostIp || 'Unknown'}`
+);
+
+doc.text(
+  `CDN Name: ${results.cdnName || 'Unknown'}`
+);
+
+doc.text(
+  `CDN Type: ${results.cdnType || 'Unknown'}`
+);
+
+doc.text(
+  `Web Server: ${results.webServer || 'Unknown'}`
+);
+
+doc.text(
+  `Status Code: ${results.statusCode || 'Unknown'}`
+);
+
+doc.text(
+  `Response Time: ${results.responseTime || 'Unknown'}`
+);
+
+doc.text(
+  `Content Length: ${results.contentLength || 'Unknown'}`
+);
+
+doc.text(
+  `Hosting Type: ${results.hostingType || 'Unknown'}`
+);
+
+doc.text(
+  `Operating System: ${results.operatingSystem || 'Unknown'}`
+);
+
+doc.moveDown();
+
+doc.moveDown();
+
+doc
+  .fontSize(18)
+  .text("Subdomains");
+
+doc.moveDown();
+
+(
+  results.subdomains || []
+).forEach(
+  (sub: string) => {
+
+    doc.text(
+      `• ${sub}`
+    );
+
+  }
+);
+
+doc.moveDown();
+
+doc
+  .fontSize(18)
+  .text("DNS Recon");
+
+doc.moveDown();
+
+doc.text("A Records");
+
+(results.ipv4 || []).forEach(
+  (record: string) => {
+    doc.text(`• ${record}`);
+  }
+);
+
+doc.moveDown();
+
+doc.text("AAAA Records");
+
+(results.ipv6 || []).forEach(
+  (record: string) => {
+    doc.text(`• ${record}`);
+  }
+);
+
+doc.moveDown();
+
+doc.text("MX Records");
+
+(results.mx || []).forEach(
+  (record: any) => {
+    doc.text(
+      `• ${record.exchange} (Priority: ${record.priority})`
+    );
+  }
+);
+
+doc.moveDown();
+
+doc.text("NS Records");
+
+(results.ns || []).forEach(
+  (record: string) => {
+    doc.text(`• ${record}`);
+  }
+);
+
+doc.moveDown();
+
+doc.text("TXT Records");
+
+(results.txt || []).forEach(
+  (record: string[]) => {
+    doc.text(`• ${record.join(" ")}`);
+  }
+);
+
+doc.moveDown();
+
+doc.text("CNAME Records");
+
+(results.cname || []).forEach(
+  (record: string) => {
+    doc.text(`• ${record}`);
+  }
+);
+
+doc.moveDown();
+
+doc
+  .fontSize(18)
+  .text("Email Security");
+
+doc.moveDown();
+
+doc.text(
+  `SPF: ${
+    results.spf
+      ? "Enabled"
+      : "Missing"
+  }`
+);
+
+doc.text(
+  `DMARC: ${
+    results.dmarc
+      ? "Enabled"
+      : "Missing"
+  }`
+);
+
+doc.text(
+  `DKIM: ${
+    results.dkim
+      ? "Enabled"
+      : "Missing"
+  }`
+);
+
+if (results.dmarcPolicy) {
+
+  doc.text(
+    `DMARC Policy: ${results.dmarcPolicy}`
+  );
+
+}
+
+doc.moveDown();
+
+doc.text(
+  `Email Security Score: ${
+    results.emailSecurityScore || 0
+  }/100`
+);
+
+doc.moveDown();
+
+doc.moveDown();
+
+doc.fontSize(18)
+   .text('GeoIP Intelligence');
+
+doc.moveDown(0.5);
+
+doc.fontSize(12)
+   .text(`Country: ${results.country || 'Unknown'}`);
+
+doc.text(
+  `Region: ${results.region || 'Unknown'}`
+);
+
+doc.text(
+  `City: ${results.city || 'Unknown'}`
+);
+
+doc.text(
+  `Timezone: ${results.timezone || 'Unknown'}`
+);
+
+doc.moveDown();
+
+doc
+  .fontSize(18)
+  .text("ASN Intelligence");
+
+doc.moveDown();
+
+doc.text(
+  `ISP: ${
+    results.isp || "Unknown"
+  }`
+);
+
+doc.text(
+  `Organization: ${
+    results.organization || "Unknown"
+  }`
+);
+
+doc.text(
+  `ASN: ${
+    results.asn || "Unknown"
+  }`
+);
+
+doc.text(
+  `Country: ${
+    results.asnCountry || "Unknown"
+  }`
+);
+
+doc.moveDown();
+
+doc.moveDown();
+
+      doc
         .fontSize(18)
         .text("Technologies");
 
       doc.moveDown();
 
       (
-        results.technologies || []
-      ).forEach(
-        (tech: string) => {
-          doc.text(`• ${tech}`);
-        }
-      );
+  results.technologies || []
+).forEach(
+  (tech: any) => {
+
+    doc.text(
+      `• ${tech.name}`
+    );
+
+    doc.text(
+      `   Category: ${tech.category}`
+    );
+
+    doc.text(
+      `   Confidence: ${tech.confidence}`
+    );
+
+    doc.moveDown(0.5);
+  }
+);
 
       doc.moveDown();
 
@@ -379,9 +636,14 @@ router.get(
       ).forEach(
         (vuln: any) => {
 
-          doc.text(
-            `${vuln.name} (${vuln.severity})`
-          );
+          const vulnTitle =
+  vuln.title ||
+  vuln.name ||
+  "Unknown Finding";
+
+doc.text(
+  `${vulnTitle} (${vuln.severity})`
+);
 
         }
       );

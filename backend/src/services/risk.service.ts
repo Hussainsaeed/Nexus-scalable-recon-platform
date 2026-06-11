@@ -1,6 +1,9 @@
 export const calculateRiskScore = (
   openPorts: number[],
-  technologies: string[],
+  technologies: {
+  name: string;
+  category: string;
+}[],
   sslData: any,
   vulnerabilities: any[] = []
 ): number => {
@@ -46,20 +49,22 @@ export const calculateRiskScore = (
     "apache"
   ];
 
-  technologies.forEach((tech) => {
+  technologies.forEach((tech: any) => {
 
-    const value =
-      tech.toLowerCase();
+  const value =
+    (
+      tech.name || ""
+    ).toLowerCase();
 
-    if (
-      riskyTech.some(
-        t => value.includes(t)
-      )
-    ) {
-      score += 5;
-    }
+  if (
+    riskyTech.some(
+      t => value.includes(t)
+    )
+  ) {
+    score += 5;
+  }
 
-  });
+});
 
   // =====================
   // SSL
@@ -96,6 +101,12 @@ export const calculateRiskScore = (
 
   vulnerabilities.forEach((vuln) => {
 
+    console.log(
+  "RISK FINDING:",
+  vuln.title,
+  vuln.severity
+);
+
     switch (
       vuln?.severity?.toLowerCase()
     ) {
@@ -109,12 +120,44 @@ export const calculateRiskScore = (
         break;
 
       case "medium":
-        score += 8;
-        break;
 
-      case "low":
-        score += 3;
-        break;
+  if (
+    vuln.title.includes(
+      "Content Security Policy"
+    )
+  ) {
+    score += 12;
+  }
+
+  else if (
+    vuln.title.includes(
+      "X-Frame-Options"
+    )
+  ) {
+    score += 10;
+  }
+
+  else {
+    score += 8;
+  }
+
+  break;
+
+case "low":
+
+  if (
+    vuln.title.includes(
+      "HSTS"
+    )
+  ) {
+    score += 5;
+  }
+
+  else {
+    score += 2;
+  }
+
+  break;
     }
 
   });
