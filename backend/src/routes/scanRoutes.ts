@@ -482,6 +482,83 @@ doc.fontSize(16)
       }
     );
 
+    doc.moveDown(2);
+
+
+
+doc.fontSize(16)
+  .text(
+    'CONTACT INFORMATION',
+    {
+      align: 'center',
+    }
+  );
+
+
+
+doc.moveDown(0.5);
+
+doc.fontSize(12)
+  .fillColor('white')
+  .text(
+    'For inquiries regarding this report:',
+    {
+      align: 'center',
+    }
+  );
+
+doc.moveDown();
+
+doc.fontSize(13)
+  .text(
+    'Hussain Mohammad Saeed',
+    {
+      align: 'center',
+    }
+  );
+
+doc.fontSize(11)
+  .fillColor('#D1D5DB')
+  .text(
+    'engineerhussainmohammadsaeed@gmail.com',
+    {
+      align: 'center',
+    }
+  );
+
+doc.moveDown();
+
+doc.fontSize(13)
+  .fillColor('white')
+  .text(
+    'Mohamad Saeed Alkawas',
+    {
+      align: 'center',
+    }
+  );
+
+doc.fontSize(11)
+  .fillColor('#D1D5DB')
+  .text(
+    'saeedkawas3@gmail.com',
+    {
+      align: 'center',
+    }
+  );
+
+doc.moveDown();
+
+doc.fontSize(12)
+  .fillColor('#10B981')
+  .text(
+    'NEXUS Recon Team',
+    {
+      align: 'center',
+    }
+  );
+
+doc.moveDown(2);
+
 doc.moveDown(2);
 
 doc.fontSize(22)
