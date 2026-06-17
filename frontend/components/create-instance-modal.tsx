@@ -21,8 +21,10 @@ export interface CreateInstancePayload {
   plan: PlanSize;
   ip?: string;
 }
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ||
+  'https://nexus-backend-5z3j.onrender.com';
 
-const API_BASE = 'http://localhost:5000';
 
 const regions: Region[] = ['us-east', 'us-west', 'eu-central', 'ap-south', 'sa-east'];
 const types: ServerType[] = ['Ubuntu 22.04', 'Ubuntu 24.04', 'Debian 12', 'AlmaLinux 9', 'Rocky Linux 9'];

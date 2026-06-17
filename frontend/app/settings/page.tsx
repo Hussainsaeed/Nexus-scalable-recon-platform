@@ -5,8 +5,8 @@ import React, { useState, useEffect } from 'react';
 
 export default function SettingsPage() {
   const [apiUrl, setApiUrl] = useState(
-    'http://localhost:5000'
-  );
+  process.env.NEXT_PUBLIC_API_URL || ''
+);
 
   const [scanDepth, setScanDepth] = useState(
     'Aggressive'
@@ -74,7 +74,7 @@ const [confirmPassword, setConfirmPassword] =
   
           const res =
             await fetch(
-              'http://localhost:5000/api/auth/me',
+  `${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`,
               {
                 headers: {
                   Authorization:
@@ -137,7 +137,7 @@ const [confirmPassword, setConfirmPassword] =
 
       const res =
         await fetch(
-          'http://localhost:5000/api/auth/account',
+  `${process.env.NEXT_PUBLIC_API_URL}/api/auth/account`,
           {
             method: 'PUT',
 

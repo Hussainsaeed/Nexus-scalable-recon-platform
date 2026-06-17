@@ -1,5 +1,5 @@
 const API =
-  'http://localhost:5000/api/auth';
+  `${process.env.NEXT_PUBLIC_API_URL}/api/auth`;
 
 export async function loginUser(
   email: string,

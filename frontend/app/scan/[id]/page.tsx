@@ -178,8 +178,8 @@ const [stage, setStage] =
 
         const response =
   await apiFetch(
-    `http://localhost:5000/api/scan/${id}`
-  );
+  `${process.env.NEXT_PUBLIC_API_URL}/api/scan/${id}`
+);
 
           const data =
           await response.json();
@@ -449,7 +449,7 @@ socket.emit(
       localStorage.getItem('token');
   
     const response = await fetch(
-      `http://localhost:5000/api/scan/report/${id}`,
+  `${process.env.NEXT_PUBLIC_API_URL}/api/scan/report/${id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

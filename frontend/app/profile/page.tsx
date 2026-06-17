@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL;
 export default function ProfilePage() {
 
   const [user, setUser] = useState<any>(null);
@@ -30,7 +33,7 @@ const [uploading, setUploading] =
         );
 
       await fetch(
-        'http://localhost:5000/api/auth/avatar',
+  `${API_URL}/api/auth/avatar`,
         {
           method: 'PUT',
 
@@ -85,7 +88,7 @@ const handleAvatarUpload = async () => {
       );
   
       await fetch(
-        'http://localhost:5000/api/auth/upload-avatar',
+  `${API_URL}/api/auth/upload-avatar`,
         {
           method: 'POST',
   
@@ -122,7 +125,7 @@ const handleAvatarUpload = async () => {
           localStorage.getItem('token');
 
         const res = await fetch(
-          'http://localhost:5000/api/auth/me',
+  `${API_URL}/api/auth/me`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

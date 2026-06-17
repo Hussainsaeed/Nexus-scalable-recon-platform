@@ -7,6 +7,9 @@ import AuthBackground from '@/components/auth/AuthBackground';
 import AuthCard from '@/components/auth/AuthCard';
 import AuthLogo from '@/components/auth/AuthLogo';
 
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL;
 export default function ResetPasswordPage() {
 
   const params = useParams();
@@ -49,17 +52,14 @@ console.log(
   
         const response =
           await fetch(
-            `http://localhost:5000/api/auth/reset-password/${token}`,
-            {
-              method: 'POST',
-  
-              headers: {
-                'Content-Type':
-                  'application/json',
-              },
-  
-              body: JSON.stringify({
-                password,
+  `${API_URL}/api/auth/reset-password/${token}`,
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      password,
               }),
             }
           );

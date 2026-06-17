@@ -14,7 +14,9 @@ type Server = {
   ram: string;
 };
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ||
+  'https://nexus-backend-5z3j.onrender.com';
 
 export default function ServersOverview() {
   const [servers, setServers] = useState<Server[]>([]);
