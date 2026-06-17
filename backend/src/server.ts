@@ -16,7 +16,10 @@ import './auth/github.strategy';
 import authRoutes from './auth/auth.routes';
 import path from 'path';
 
-console.log('MONGO_URI EXISTS:', !!process.env.MONGO_URI);
+console.log(
+  'MONGODB_URI EXISTS:',
+  !!process.env.MONGODB_URI
+);
 
 const app = express();
 
@@ -44,8 +47,8 @@ app.use(
   try {
 
     await mongoose.connect(
-      process.env.MONGO_URI as string
-    );
+  process.env.MONGODB_URI as string
+);
   console.log(`
 ====================================
 ✅ MongoDB Connected: ${mongoose.connection.host}
