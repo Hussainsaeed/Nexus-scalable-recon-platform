@@ -1,10 +1,6 @@
 export const getApiUrl = () => {
-    if (typeof window === 'undefined') {
-      return 'http://localhost:5000';
-    }
-  
-    return (
-      localStorage.getItem('apiUrl') ||
-      'http://localhost:5000'
-    );
-  };
+  return (
+    process.env.NEXT_PUBLIC_API_URL ||
+    'https://nexus-backend-5z3j.onrender.com'
+  );
+};
