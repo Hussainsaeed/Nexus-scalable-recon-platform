@@ -287,7 +287,7 @@ export default function LoginPage() {
 <button
   onClick={() => {
     window.location.href =
-      'http://localhost:5000/api/auth/google';
+  `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`;
   }}
   className="
     w-full
@@ -317,7 +317,7 @@ export default function LoginPage() {
   <button
   onClick={() => {
     window.location.href =
-      'http://localhost:5000/api/auth/github';
+  `${process.env.NEXT_PUBLIC_API_URL}/api/auth/github`;
   }}
   
     className="
